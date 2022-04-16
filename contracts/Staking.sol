@@ -6,14 +6,15 @@
 pragma solidity ^0.8.4;
 
 // INTERFACES USED //
-import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
+import "@openzeppelin/contracts-upgradeable/token/ERC20/IERC20Upgradeable.sol";
 
-contract StakingRewards {
+contract StakingRewards is Initializable {
 
 // VARIABLES //
 
-    IERC20 public rewardsToken; //reward given to the user
-    IERC20 public stakingToken; //token that the user stakes, both ERC20
+    IERC20Upgradeable public rewardsToken; //reward given to the user
+    IERC20Upgradeable public stakingToken; //token that the user stakes, both ERC20
     uint public rewardRate = 100; // tokens minted per second
     uint public lastUpdateTime; // last time this contract was called
     uint public rewardPerTokenStored; // rewardRate / _totalSupply
@@ -39,9 +40,23 @@ contract StakingRewards {
 
 // FUNCTIONS //
 
-    constructor(address _stakingToken, address _rewardsToken) {
-        stakingToken = IERC20(_stakingToken);
-        rewardsToken = IERC20(_rewardsToken);
+    /**
+    * @notice the next to functions are inmutables, and they can only be called by a function
+    * with the {Initializer} modifier
+    * @dev to initialize this contract call the __Staking_init on yor initialize function from
+    * your upgradeable contract
+    */
+    function __Staking_init(address _stakingToken, address _rewardsToken) 
+    internal 
+    onlyInitializing {
+        __Staking_init_unchained(_stakingToken, _rewardsToken);
+    }
+
+    function __Staking_init_unchained(address _stakingToken, address _rewardsToken) 
+    internal 
+    onlyInitializing {
+        stakingToken = IERC20Upgradeable(_stakingToken);
+        rewardsToken = IERC20Upgradeable(_rewardsToken);
     }
     /**
     * @notice functions to calculate rewards and earnings
