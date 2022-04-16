@@ -12,21 +12,23 @@ contract StakingRewards {
 
 // VARIABLES //
 
-    IERC20 public rewardsToken;
-    IERC20 public stakingToken;
-    uint public rewardRate = 100;
-    uint public lastUpdateTime;
-    uint public rewardPerTokenStored;
+    IERC20 public rewardsToken; //reward given to the user
+    IERC20 public stakingToken; //token that the user stakes, both ERC20
+    uint public rewardRate = 100; // tokens minted per second
+    uint public lastUpdateTime; // last time this contract was called
+    uint public rewardPerTokenStored; // rewardRate / _totalSupply
     uint private _totalSupply; // Asociated to the _balances mapping
 
 // MAPPINGS //
 
     mapping(address => uint) public userRewardPerTokenPaid;
-    mapping(address => uint) public rewards;
-    mapping(address => uint) private _balances;
+    mapping(address => uint) public rewards; 
+    mapping(address => uint) private _balances; //tokens staked per user
 
 // MODIFIERS //
-
+    /**
+    * @notice we update the reward every time the user interact with the contract
+    */
     modifier updateReward(address account) {
         rewardPerTokenStored = rewardPerToken();
         lastUpdateTime = block.timestamp;
@@ -41,7 +43,9 @@ contract StakingRewards {
         stakingToken = IERC20(_stakingToken);
         rewardsToken = IERC20(_rewardsToken);
     }
-
+    /**
+    * @notice functions to calculate rewards and earnings
+    */
     function rewardPerToken() 
     public
     view
@@ -60,7 +64,10 @@ contract StakingRewards {
         return ((_balances[account] * (rewardPerToken() - userRewardPerTokenPaid[account])) / 1e18) +
             rewards[account];
     }
-
+    /**
+    * @notice the next three functions are the ones the user use to interact
+    * @dev the user can stake tokens, withdraw staked tokens and get the reward by his stakings
+    */
     function stake(uint _amount)
     external 
     updateReward(msg.sender) {
