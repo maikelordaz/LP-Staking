@@ -35,6 +35,7 @@ contract OptimalSwap {
 // FUNCTIONS // 
     /**
     * @notice an auxiliar function to get the square root
+    * @dev taked from Uniswap
     */
     function sqrt(uint y) internal pure returns (uint z) {
         if (y > 3) {
