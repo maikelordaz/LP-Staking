@@ -6,6 +6,8 @@
 */
 pragma solidity ^0.8.4;
 
+// CONTRACTS INHERITHED //
+import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 // INTERFACES USED //
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@uniswap/v2-core/contracts/interfaces/IUniswapV2Pair.sol";
@@ -15,24 +17,42 @@ import "@uniswap/v2-periphery/contracts/interfaces/IWETH.sol";
 // LIBRARIES USED //
 import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 
-contract OptimalSwap {
+contract OptimalSwap is Initializable {
 
 // VARIABLES //
 
     using SafeMath for uint;
-    address private constant ROUTER = 0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D;
-    address private constant FACTORY = 0x5C69bEe701ef814a2B6a3EDD4B1652CB9cc5aA6f;
-    address private constant DAI = 0xc7AD46e0b8a400Bb3C915120d284AafbA8fc4735;
-    address private constant ETH = 0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE;
-    IUniswapV2Router02 internal constant router = IUniswapV2Router02(ROUTER);
-    IUniswapV2Factory internal constant factory = IUniswapV2Factory(FACTORY);
-    IERC20 internal constant dai = IERC20(DAI);
+    address private ROUTER;
+    address private FACTORY;
+    address private DAI;
+    address private ETH;
+    IUniswapV2Router02 internal router;
+    IUniswapV2Factory internal factory;
+    IERC20 internal dai;
 
 // EVENTS //    
 
     event Log(string message, uint value);
 
 // FUNCTIONS // 
+    function __OptimalSwap_init(address _ROUTER, address _FACTORY, address _DAI, address _ETH) 
+    internal 
+    onlyInitializing {
+        __OptimalSwap_init_unchained(_ROUTER, _FACTORY, _DAI, _ETH);        
+    }
+
+    function __OptimalSwap_init_unchained(address _ROUTER, address _FACTORY, address _DAI, address _ETH) 
+    internal 
+    onlyInitializing {
+        ROUTER = _ROUTER; // 0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D;
+        FACTORY = _FACTORY; // 0x5C69bEe701ef814a2B6a3EDD4B1652CB9cc5aA6f;
+        DAI = _DAI; // 0xc7AD46e0b8a400Bb3C915120d284AafbA8fc4735;
+        ETH = _ETH; // 0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE;
+        router = IUniswapV2Router02(ROUTER);
+        factory = IUniswapV2Factory(FACTORY);
+        dai = IERC20(DAI);
+    }
+    
     /**
     * @notice an auxiliar function to get the square root
     * @dev taked from Uniswap
@@ -75,7 +95,6 @@ contract OptimalSwap {
     function swapAndAddLiquidity() 
     external
     payable {
-        require(msg.value > 0, "You have to send some ether.");
         // Get the ETH / DAI pair price
         address pair = factory.getPair(ETH, DAI);
         // Get the reserves of ETH
