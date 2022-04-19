@@ -1,15 +1,20 @@
-# Basic Sample Hardhat Project
-
-This project demonstrates a basic Hardhat use case. It comes with a sample contract, a test for that contract, a sample script that deploys that contract, and an example of a task implementation, which simply lists the available accounts.
-
-Try running some of the following tasks:
-
-```shell
-npx hardhat accounts
-npx hardhat compile
-npx hardhat clean
-npx hardhat test
-npx hardhat node
-node scripts/sample-script.js
-npx hardhat help
-```
+# solidity-nft-drop <br/>
+An DApp created in Solidity with the funcionality of a LP Stacking in the Ethereum blockchain. <br/>
+This project is for academic purposes only. <br/>
+<br/>
+Walkthrough: <br/>
+<br/>
+1- Clone the main branch into your local repository. <br/>
+2- Open a terminal and navigate to the local repository. <br/>
+3- Run the command "npm install" for installing all dependencies. <br/>
+4- Create an .env file with 5 variables, "INFURA_URL", wich we will obtain the URL for deployment in Rinkeby, "PRIVATE_KEY" corresponding to your address private key. <br/>
+"ALCHEMY_KEY" for the mainnet forking, ETHERSCAN_API_KEY for verify the contract if you deploy in some public net and COIN_MARKET_CAP_API_KEY for gas calculation in tests.<br/>
+5- Run the script "compile" for compile the Hardhat project with Solidity 0.8.4 or greater. <br/>
+6- Run the script "test" for start all tests for the project. <br/>
+<br/>
+Optional: <br/>
+<br/>
+7- You can run the script "deploy" for checking if the deploy is working in Rinkeby testnet. <br/>
+8- You can run the script "coverage" for checking the stats of the tests. <br/>
+9- You can run the script "verify" for verify the contract in the Rikeby testnet if this contract was deployed there. <br/>
+<br/>
