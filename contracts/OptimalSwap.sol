@@ -6,20 +6,20 @@
 */
 pragma solidity ^0.8.4;
 
-// CONTRACTS INHERITHED //
+/// CONTRACTS INHERITHED
 import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
-// INTERFACES USED //
+/// INTERFACES USED
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@uniswap/v2-core/contracts/interfaces/IUniswapV2Pair.sol";
 import "@uniswap/v2-core/contracts/interfaces/IUniswapV2Factory.sol";
 import "@uniswap/v2-periphery/contracts/interfaces/IUniswapV2Router02.sol";
 import "@uniswap/v2-periphery/contracts/interfaces/IWETH.sol";
-// LIBRARIES USED //
+/// LIBRARIES USED
 import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 
 contract OptimalSwap is Initializable {
 
-// VARIABLES //
+/// VARIABLES
 
     using SafeMath for uint;
     address private ROUTER;
@@ -30,20 +30,32 @@ contract OptimalSwap is Initializable {
     IUniswapV2Factory internal factory;
     IERC20 internal dai;
 
-// EVENTS //    
+/// EVENTS 
 
     event Log(string message, uint value);
 
-// FUNCTIONS // 
-    function __OptimalSwap_init(address _ROUTER, address _FACTORY, address _DAI, address _ETH) 
-    internal 
-    onlyInitializing {
+/// FUNCTIONS
+    function __OptimalSwap_init(
+        address _ROUTER,
+        address _FACTORY,
+        address _DAI,
+        address _ETH
+    ) 
+        internal 
+        onlyInitializing
+    {
         __OptimalSwap_init_unchained(_ROUTER, _FACTORY, _DAI, _ETH);        
     }
 
-    function __OptimalSwap_init_unchained(address _ROUTER, address _FACTORY, address _DAI, address _ETH) 
-    internal 
-    onlyInitializing {
+    function __OptimalSwap_init_unchained(
+        address _ROUTER,
+        address _FACTORY,
+        address _DAI,
+        address _ETH
+    ) 
+        internal 
+        onlyInitializing
+    {
         ROUTER = _ROUTER; // 0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D;
         FACTORY = _FACTORY; // 0x5C69bEe701ef814a2B6a3EDD4B1652CB9cc5aA6f;
         DAI = _DAI; // 0xc7AD46e0b8a400Bb3C915120d284AafbA8fc4735;
@@ -70,6 +82,7 @@ contract OptimalSwap is Initializable {
         }
         // else z = 0
     }
+
     /**
     * @notice an auxiliar function to get the optimal swap amount to add liquidity
     * @dev according to the Uniswap´s whitepaper and it´s maths, regarding to the swaps and fees
@@ -88,13 +101,12 @@ contract OptimalSwap is Initializable {
     function getAmount(uint r, uint a) public pure returns (uint) {
         return (sqrt(r.mul(r.mul(3988009)+a.mul(3988000))).sub(r.mul(1997)))/1994;
     }
+
     /**
     * @notice the main function to swap and addliquidity
     * @dev only adds liquidity to the ETH / DAI pool
     */
-    function swapAndAddLiquidity() 
-    external
-    payable {
+    function swapAndAddLiquidity() external payable {
         // Get the ETH / DAI pair price
         address pair = factory.getPair(ETH, DAI);
         // Get the reserves of ETH
