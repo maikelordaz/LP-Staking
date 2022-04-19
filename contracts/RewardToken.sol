@@ -1,10 +1,10 @@
 /// SPDX-License-Identifier: GPL-3.0
 pragma solidity >=0.8.0 <0.9.0;
 
-import '@openzeppelin/contracts/token/ERC20/ERC20.sol';
-import "@openzeppelin/contracts/access/Ownable.sol";
+import '@openzeppelin/contracts-upgradeable/token/ERC20/ERC20Upgradeable.sol';
+import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 
-contract ERC20Token is ERC20, Ownable {
+contract RewardToken is ERC20Upgradeable, OwnableUpgradeable {
     /// VARIABLES
     uint cost = 0.001 ether;
     /**
@@ -16,7 +16,10 @@ contract ERC20Token is ERC20, Ownable {
     /**
      *  @notice Constructor function that initialice the name and symbol of the token
      */
-    constructor(uint256 _supply) ERC20("Iris", "IRI") {
+    function initialize(uint256 _supply) public initializer {
+        __ERC20_init('RewardToken', 'RT');
+        __Ownable_init();
+        
         _mint(msg.sender, _supply);
     }
 
@@ -33,8 +36,8 @@ contract ERC20Token is ERC20, Ownable {
      *  @notice Function that overrides the ERC20 decimals to set decimals in 0
      *  @notice This sets the min quantity of tokens in 1
      */
-    function decimals() public view virtual override(ERC20) returns (uint8) {
-        return 0;
+    function decimals() public view virtual override(ERC20Upgradeable) returns (uint8) {
+        return 18;
     }
 
     /**
