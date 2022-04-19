@@ -40,8 +40,8 @@ contract LPStaking is Initializable, OptimalSwap, StakingRewards  {
         __Staking_init(_stakingToken, _rewardsToken);
     }
 
-    function stakeLPWithoutPermit() public {
-
+    function stakeLPWithoutPermit(uint _amount) public {
+        require(stake(_amount));
     }
     
     function stakeLPWithPermit() public {
@@ -52,7 +52,7 @@ contract LPStaking is Initializable, OptimalSwap, StakingRewards  {
         swapAddLiquidityAndStakeLP();
     }
 
-    function stakeLiquidity() internal {
-        
+    function stakeLiquidity(uint _amount) internal {
+        require(stake(_amount));
     }
 }

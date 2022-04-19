@@ -88,9 +88,9 @@ contract StakingRewards is Initializable {
     * @notice the next three functions are the ones the user use to interact
     * @dev the user can stake tokens, withdraw staked tokens and get the reward by his stakings
     */
-    function stake(uint _amount) external updateReward(msg.sender) {
+    function stake(uint _amount) internal updateReward(msg.sender) {
         _totalSupply += _amount;
-        _balances[msg.sender] = _amount;
+        _balances[msg.sender] += _amount;
         stakingToken.transferFrom(msg.sender, address(this), _amount);
     }
 
