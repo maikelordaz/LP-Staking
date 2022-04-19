@@ -103,36 +103,122 @@ contract OptimalSwap is Initializable {
     }
 
     /**
-    * @notice the main function to swap and addliquidity
+    * @notice the main function to swap and add liquidity
+    * @notice this function returns the LP Tokens to the msg sender
     * @dev only adds liquidity to the ETH / DAI pool
     */
     function swapAndAddLiquidity() external payable {
         // Get the ETH / DAI pair price
         address pair = factory.getPair(ETH, DAI);
+
         // Get the reserves of ETH
         (uint reserve0, , ) = IUniswapV2Pair(pair).getReserves();
+
         // Calculate the optimal amount to swap and the amount left.
         uint ethToSwap = getAmount(reserve0, msg.value);
         uint ethLeft = msg.value - ethToSwap;
+
         // Get the actual contract´s DAI´s balance
         uint afterDAIbalance = dai.balanceOf(address(this));
+
         // Perform the swap
         address[] memory path = new address[](2);
         path[0] = ETH;
         path[1] = DAI;
-        router.swapExactETHForTokensSupportingFeeOnTransferTokens{value:ethToSwap}(
-            1, path, address(this), block.timestamp);
+        router.swapExactETHForTokensSupportingFeeOnTransferTokens{value:ethToSwap}
+        (
+            1,
+            path,
+            address(this),
+            block.timestamp
+        );
+
         // Get the new contract´s DAI´s balance and calculate the DAIs get from the swap
         uint beforeDAIbalance = dai.balanceOf(address(this));
         uint actualDAI = beforeDAIbalance - afterDAIbalance;
+
         // Approve the Uniswap Router to spend the corresponding balance
         dai.approve(ROUTER, actualDAI);
+
         // Add the liquidity with the ETH left and the corresponding DAI
-        (uint amountDAI, uint amountETH, uint liquidity) = 
-            router.addLiquidityETH{value:ethLeft}(DAI, actualDAI, 1, 1, address(this), block.timestamp); 
+        (
+            uint amountDAI,
+            uint amountETH,
+            uint liquidity
+        ) = router.addLiquidityETH{value:ethLeft}(
+            DAI,
+            actualDAI,
+            1,
+            1,
+            msg.sender,
+            block.timestamp
+        );
+
         // Emit the corresponding events
-        emit Log("DAI amount", amountDAI);      
-        emit Log("ETH amount", amountETH);   
-        emit Log("liquidity", liquidity);    
+        emit Log("DAI amount", amountDAI);
+        emit Log("ETH amount", amountETH);
+        emit Log("liquidity", liquidity);
     }
+
+    /**
+    * @notice the main function to swap and add liquidity
+    * @notice this function returns the LP Tokens to the msg sender
+    * @dev only adds liquidity to the ETH / DAI pool
+    */
+    function swapAddLiquidityAndStakeLP() external payable {
+        // Get the ETH / DAI pair price
+        address pair = factory.getPair(ETH, DAI);
+
+        // Get the reserves of ETH
+        (uint reserve0, , ) = IUniswapV2Pair(pair).getReserves();
+
+        // Calculate the optimal amount to swap and the amount left.
+        uint ethToSwap = getAmount(reserve0, msg.value);
+        uint ethLeft = msg.value - ethToSwap;
+
+        // Get the actual contract´s DAI´s balance
+        uint afterDAIbalance = dai.balanceOf(address(this));
+
+        // Perform the swap
+        address[] memory path = new address[](2);
+        path[0] = ETH;
+        path[1] = DAI;
+        router.swapExactETHForTokensSupportingFeeOnTransferTokens{value:ethToSwap}
+        (
+            1,
+            path,
+            address(this),
+            block.timestamp
+        );
+
+        // Get the new contract´s DAI´s balance and calculate the DAIs get from the swap
+        uint beforeDAIbalance = dai.balanceOf(address(this));
+        uint actualDAI = beforeDAIbalance - afterDAIbalance;
+
+        // Approve the Uniswap Router to spend the corresponding balance
+        dai.approve(ROUTER, actualDAI);
+
+        // Add the liquidity with the ETH left and the corresponding DAI
+        (
+            uint amountDAI,
+            uint amountETH,
+            uint liquidity
+        ) = router.addLiquidityETH{value:ethLeft}(
+            DAI,
+            actualDAI,
+            1,
+            1,
+            address(this),
+            block.timestamp
+        );
+
+        stakeLiquidity();
+
+        // Emit the corresponding events
+        emit Log("DAI amount", amountDAI);
+        emit Log("ETH amount", amountETH);
+        emit Log("liquidity", liquidity);
+    }
+
+    function stakeLiquidity() internal
 }
