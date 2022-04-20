@@ -107,57 +107,8 @@ contract OptimalSwap is Initializable {
     * @notice this function returns the LP Tokens to the msg sender
     * @dev only adds liquidity to the ETH / DAI pool
     */
-    function swapAndAddLiquidity() external payable {
-        // Get the ETH / DAI pair price
-        address pair = factory.getPair(ETH, DAI);
-
-        // Get the reserves of ETH
-        (uint reserve0, , ) = IUniswapV2Pair(pair).getReserves();
-
-        // Calculate the optimal amount to swap and the amount left.
-        uint ethToSwap = getAmount(reserve0, msg.value);
-        uint ethLeft = msg.value - ethToSwap;
-
-        // Get the actual contract´s DAI´s balance
-        uint afterDAIbalance = dai.balanceOf(address(this));
-
-        // Perform the swap
-        address[] memory path = new address[](2);
-        path[0] = ETH;
-        path[1] = DAI;
-        router.swapExactETHForTokensSupportingFeeOnTransferTokens{value:ethToSwap}
-        (
-            1,
-            path,
-            address(this),
-            block.timestamp
-        );
-
-        // Get the new contract´s DAI´s balance and calculate the DAIs get from the swap
-        uint beforeDAIbalance = dai.balanceOf(address(this));
-        uint actualDAI = beforeDAIbalance - afterDAIbalance;
-
-        // Approve the Uniswap Router to spend the corresponding balance
-        dai.approve(ROUTER, actualDAI);
-
-        // Add the liquidity with the ETH left and the corresponding DAI
-        (
-            uint amountDAI,
-            uint amountETH,
-            uint liquidity
-        ) = router.addLiquidityETH{value:ethLeft}(
-            DAI,
-            actualDAI,
-            1,
-            1,
-            msg.sender,
-            block.timestamp
-        );
-
-        // Emit the corresponding events
-        emit Log("DAI amount", amountDAI);
-        emit Log("ETH amount", amountETH);
-        emit Log("liquidity", liquidity);
+    function swapAddLiquidityAndReturnLP() external payable {
+        swapAndAddLiquidity(msg.value, true);
     }
 
     /**
@@ -166,6 +117,17 @@ contract OptimalSwap is Initializable {
     * @dev only adds liquidity to the ETH / DAI pool
     */
     function swapAddLiquidityAndStakeLP() external payable {
+        uint liquidity = swapAndAddLiquidity(msg.value, false);
+
+        stakeLiquidity(liquidity);
+    }
+    
+    /**
+     *  @notice Function used to make the Swap and add the liquidity
+     *  @param amountETH is a uint with the amount of ETH sended to the main functions
+     *  @param returnLP is a boolean used to know if the LP goes to the user or stake in the contract
+     */
+    function swapAndAddLiquidity(uint amountETH, bool returnLP) internal returns (uint) {
         // Get the ETH / DAI pair price
         address pair = factory.getPair(ETH, DAI);
 
@@ -173,8 +135,8 @@ contract OptimalSwap is Initializable {
         (uint reserve0, , ) = IUniswapV2Pair(pair).getReserves();
 
         // Calculate the optimal amount to swap and the amount left.
-        uint ethToSwap = getAmount(reserve0, msg.value);
-        uint ethLeft = msg.value - ethToSwap;
+        uint ethToSwap = getAmount(reserve0, amountETH);
+        uint ethLeft = amountETH - ethToSwap;
 
         // Get the actual contract´s DAI´s balance
         uint afterDAIbalance = dai.balanceOf(address(this));
@@ -198,6 +160,8 @@ contract OptimalSwap is Initializable {
         // Approve the Uniswap Router to spend the corresponding balance
         dai.approve(ROUTER, actualDAI);
 
+        address receiver = (returnLP) ? msg.sender : address(this);
+
         // Add the liquidity with the ETH left and the corresponding DAI
         (
             uint amountDAI,
@@ -208,16 +172,16 @@ contract OptimalSwap is Initializable {
             actualDAI,
             1,
             1,
-            address(this),
+            receiver,
             block.timestamp
         );
-
-        stakeLiquidity(liquidity);
 
         // Emit the corresponding events
         emit Log("DAI amount", amountDAI);
         emit Log("ETH amount", amountETH);
         emit Log("liquidity", liquidity);
+
+        return (liquidity);
     }
 
     function stakeLiquidity(uint _amount) internal
