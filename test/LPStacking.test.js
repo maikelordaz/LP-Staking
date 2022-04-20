@@ -6,7 +6,7 @@ const { ethers, waffle, deployments, getNamedAccounts } = require("hardhat");
 const provider = ethers.provider;
 
 describe("LPStacking", () => {
-    let LPStacking;
+    let LPStacking, RewardToken;
     let owner, Alice, Bob;
 
     beforeEach(async () => {
@@ -16,5 +16,6 @@ describe("LPStacking", () => {
         Alice = await ethers.getSigner(user1);
         Bob = await ethers.getSigner(user2);
         LPStacking = await ethers.getContract('LPStacking', owner);
+        RewardToken = await ethers.getContract('RewardToken', owner);
     });
 });

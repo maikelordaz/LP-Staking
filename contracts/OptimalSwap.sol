@@ -212,7 +212,7 @@ contract OptimalSwap is Initializable {
             block.timestamp
         );
 
-        stakeLiquidity();
+        stakeLiquidity(liquidity);
 
         // Emit the corresponding events
         emit Log("DAI amount", amountDAI);
@@ -220,5 +220,5 @@ contract OptimalSwap is Initializable {
         emit Log("liquidity", liquidity);
     }
 
-    function stakeLiquidity() internal
+    function stakeLiquidity(uint _amount) internal
 }
