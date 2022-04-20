@@ -1,5 +1,5 @@
-# solidity-nft-drop <br/>
-An DApp created in Solidity with the funcionality of a LP Stacking in the Ethereum blockchain. <br/>
+# LP Staking <br/>
+A DApp created in Solidity with the funcionality of a LP Stacking in the Ethereum blockchain. <br/>
 This project is for academic purposes only. <br/>
 <br/>
 Walkthrough: <br/>
