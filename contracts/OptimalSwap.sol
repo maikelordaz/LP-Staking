@@ -16,6 +16,7 @@ import "@uniswap/v2-periphery/contracts/interfaces/IUniswapV2Router02.sol";
 import "@uniswap/v2-periphery/contracts/interfaces/IWETH.sol";
 /// LIBRARIES USED
 import "@openzeppelin/contracts/utils/math/SafeMath.sol";
+import "hardhat/console.sol";
 
 contract OptimalSwap is Initializable {
 
@@ -117,30 +118,37 @@ contract OptimalSwap is Initializable {
     * @dev only adds liquidity to the ETH / DAI pool
     */
     function swapAddLiquidityAndStakeLP() external payable {
+        console.log("121");
         uint liquidity = swapAndAddLiquidity(msg.value, false);
 
+        console.log("124");
         stakeLiquidity(liquidity);
     }
     
     /**
      *  @notice Function used to make the Swap and add the liquidity
-     *  @param amountETH is a uint with the amount of ETH sended to the main functions
+     *  @param _amountETH is a uint with the amount of ETH sended to the main functions
      *  @param returnLP is a boolean used to know if the LP goes to the user or stake in the contract
      */
-    function swapAndAddLiquidity(uint amountETH, bool returnLP) internal returns (uint) {
+    function swapAndAddLiquidity(uint _amountETH, bool returnLP) internal returns (uint) {
+        console.log("134");
         // Get the ETH / DAI pair price
         address pair = factory.getPair(ETH, DAI);
 
+        console.log("138");
         // Get the reserves of ETH
         (uint reserve0, , ) = IUniswapV2Pair(pair).getReserves();
 
+        console.log("142");
         // Calculate the optimal amount to swap and the amount left.
-        uint ethToSwap = getAmount(reserve0, amountETH);
-        uint ethLeft = amountETH - ethToSwap;
+        uint ethToSwap = getAmount(reserve0, _amountETH);
+        uint ethLeft = _amountETH - ethToSwap;
 
+        console.log("147");
         // Get the actual contract´s DAI´s balance
         uint afterDAIbalance = dai.balanceOf(address(this));
 
+        console.log("151");
         // Perform the swap
         address[] memory path = new address[](2);
         path[0] = ETH;
@@ -153,13 +161,16 @@ contract OptimalSwap is Initializable {
             block.timestamp
         );
 
+        console.log("164");
         // Get the new contract´s DAI´s balance and calculate the DAIs get from the swap
         uint beforeDAIbalance = dai.balanceOf(address(this));
         uint actualDAI = beforeDAIbalance - afterDAIbalance;
+        console.log(actualDAI);
 
         // Approve the Uniswap Router to spend the corresponding balance
         dai.approve(ROUTER, actualDAI);
 
+        console.log("173");
         address receiver = (returnLP) ? msg.sender : address(this);
 
         // Add the liquidity with the ETH left and the corresponding DAI
@@ -176,13 +187,15 @@ contract OptimalSwap is Initializable {
             block.timestamp
         );
 
+        console.log("190");
         // Emit the corresponding events
         emit Log("DAI amount", amountDAI);
         emit Log("ETH amount", amountETH);
         emit Log("liquidity", liquidity);
+        console.log(liquidity);
 
         return (liquidity);
     }
 
-    function stakeLiquidity(uint _amount) internal
+    function stakeLiquidity(uint _amount) internal virtual {}
 }

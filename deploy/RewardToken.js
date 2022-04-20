@@ -1,7 +1,7 @@
 const CONTRACT_NAME = "RewardToken";
 
 module.exports = async ({ getNamedAccounts, deployments }) => {
-    const { deploy, get } = deployments;
+    const { deploy } = deployments;
     const { deployer } = await getNamedAccounts();
 
     // Upgradeable Proxy
@@ -13,7 +13,7 @@ module.exports = async ({ getNamedAccounts, deployments }) => {
                 init: {
                     methodName: "initialize",
                     args: [
-                        10e36,
+                        1000000,
                     ]
                 },
             },

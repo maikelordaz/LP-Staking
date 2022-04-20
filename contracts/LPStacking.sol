@@ -11,8 +11,8 @@ contract LPStaking is AccessControlUpgradeable, OptimalSwap, StakingRewards  {
     bytes32 public constant ADMIN_ROLE = keccak256("ADMIN_ROLE");
 
     /// Variables
-    address router;
-    address factory;
+    address mainRouter;
+    address mainFactory;
     address DAI;
     address ETH;
 
@@ -35,14 +35,14 @@ contract LPStaking is AccessControlUpgradeable, OptimalSwap, StakingRewards  {
         address _stakingToken,
         address _rewardsToken
     ) public initializer {
-        router = _router;
-        factory = _factory;
+        mainRouter = _router;
+        mainFactory = _factory;
         DAI = _DAI;
         ETH = _ETH;
 
         __OptimalSwap_init(
-            router,
-            factory,
+            mainRouter,
+            mainFactory,
             DAI,
             ETH
         );
@@ -66,12 +66,9 @@ contract LPStaking is AccessControlUpgradeable, OptimalSwap, StakingRewards  {
      *  @dev This function doesn't require the user to do an Approval transaction before
      *  @dev This function require a signature by the user in the off-chain
      *  @param _amount is a uint which is the amount of LP Tokens to be staked
-     *  @param v is a uint8 that is part of the signature
-     *  @param r is a bytes32 that is part of the signature
-     *  @param s is a bytes32 that is part of the signature
      */
     function stakeLPWithPermit(uint _amount, bytes memory sig) public {
-        (bytes32 r, bytes32 s, uint8 v) = _split(_sig);
+        (bytes32 r, bytes32 s, uint8 v) = _split(sig);
 
         require(stakeWithPermit(_amount, v, r, s));
     }
@@ -80,7 +77,7 @@ contract LPStaking is AccessControlUpgradeable, OptimalSwap, StakingRewards  {
      *  @notice Function used to connect two contracts imported
      *  @dev This function allows the OptimalSwap to connect with StakingRewards
      */
-    function stakeLiquidity(uint _amount) internal {
+    function stakeLiquidity(uint _amount) internal override virtual{
         require(stake(_amount));
     }
 
