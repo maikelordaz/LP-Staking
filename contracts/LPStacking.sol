@@ -44,8 +44,8 @@ contract LPStaking is Initializable, OptimalSwap, StakingRewards  {
         require(stake(_amount));
     }
     
-    function stakeLPWithPermit() public {
-
+    function stakeLPWithPermit(uint _amount, uint8 v, bytes32 r, bytes32 s) public {
+        require(stakeWithPermit(_amount, v, r, s));
     }
 
     function addLiquidityAndStake() public {
