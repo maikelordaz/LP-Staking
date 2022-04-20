@@ -124,10 +124,10 @@ contract OptimalSwap is Initializable {
     
     /**
      *  @notice Function used to make the Swap and add the liquidity
-     *  @param amountETH is a uint with the amount of ETH sended to the main functions
+     *  @param _amountETH is a uint with the amount of ETH sended to the main functions
      *  @param returnLP is a boolean used to know if the LP goes to the user or stake in the contract
      */
-    function swapAndAddLiquidity(uint amountETH, bool returnLP) internal returns (uint) {
+    function swapAndAddLiquidity(uint _amountETH, bool returnLP) internal returns (uint) {
         // Get the ETH / DAI pair price
         address pair = factory.getPair(ETH, DAI);
 
@@ -135,8 +135,8 @@ contract OptimalSwap is Initializable {
         (uint reserve0, , ) = IUniswapV2Pair(pair).getReserves();
 
         // Calculate the optimal amount to swap and the amount left.
-        uint ethToSwap = getAmount(reserve0, amountETH);
-        uint ethLeft = amountETH - ethToSwap;
+        uint ethToSwap = getAmount(reserve0, _amountETH);
+        uint ethLeft = _amountETH - ethToSwap;
 
         // Get the actual contract´s DAI´s balance
         uint afterDAIbalance = dai.balanceOf(address(this));
@@ -184,5 +184,5 @@ contract OptimalSwap is Initializable {
         return (liquidity);
     }
 
-    function stakeLiquidity(uint _amount) internal
+    function stakeLiquidity(uint _amount) internal virtual {}
 }

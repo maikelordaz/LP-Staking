@@ -68,6 +68,9 @@ contract StakingRewards is Initializable {
         stakingToken = IUniswapV2ERC20(_stakingToken);
         rewardsToken = IERC20Upgradeable(_rewardsToken);
         rewardRate = 100;
+        lastUpdateTime = block.timestamp;
+        rewardPerTokenStored = 0;
+        totalSupply = 0;
     }
 
     /**
