@@ -18,4 +18,19 @@ describe("LPStacking", () => {
         LPStacking = await ethers.getContract('LPStacking', owner);
         RewardToken = await ethers.getContract('RewardToken', owner);
     });
+
+    describe("Deploy", () => {
+        it("Should set the variable correct", async () => {
+            expect(await LPStacking.isAdmin(owner.address)).to.be.equal(true);
+            expect(await LPStacking.rewardRate()).to.be.equal(100);
+            expect(await LPStacking.rewardPerTokenStored()).to.be.equal(0);
+            expect(await LPStacking.totalSupply()).to.be.equal(0);
+        });
+    });
+
+    describe("LPStacking functions", () => {
+        it("Should work in the principal workflow", async() => {
+            
+        });
+    });
 });
