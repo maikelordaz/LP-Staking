@@ -1,6 +1,6 @@
 import React, {useState} from "react";
 import { Row, Col, Modal, Form, Button } from "react-bootstrap";
-const MyStake = ({sendEth}) => {
+const MyStake = ({sendEth, rewardTokenStored, rRate}) => {
   const [show, setShow] = useState(false);
   const [eth, setEth] = useState(0);
 
@@ -23,14 +23,14 @@ const MyStake = ({sendEth}) => {
         <hr/>
         <Col>
           <div className="quantity-stats">
-            <div className="tittle-stats">Protected Value</div>
-            <div className="tittle-stats">--</div>
+            <div className="tittle-stats">Reward Token Stored</div>
+            <div className="tittle-stats">{rewardTokenStored || "--"}</div>
           </div>
         </Col>
         <Col>
           <div className="quantity-stats">
-            <div className="tittle-stats">Claimable Value</div>
-            <div className="tittle-stats">--</div>
+            <div className="tittle-stats">Rewards Rate</div>
+            <div className="tittle-stats">{rRate || "--"}</div>
           </div>
         </Col>
         <Col >
@@ -46,8 +46,7 @@ const MyStake = ({sendEth}) => {
           <Modal.Body>
             <Form>
               <Form.Group className="mb-3" controlId="formBasicEmail">
-                <Form.Label className="tittle-card">Claimable Rewards</Form.Label>
-                <Form.Control type="number" placeholder="0 tokens" onChange={(e)=>setEth(e.target.value)}/>
+                <Form.Control type="number" placeholder="0 eth" onChange={(e)=>setEth(e.target.value)}/>
               </Form.Group>
             </Form>
             <div className="d-grid gap-2">

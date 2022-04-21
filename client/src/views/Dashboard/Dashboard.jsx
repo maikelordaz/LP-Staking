@@ -8,7 +8,16 @@ import Rewards from "../../components/Rewards";
 import DashboardLogic from "./DashboardLogic";
 
 const Dashboard = () => {
-    const { sendEth } = DashboardLogic();
+    const {
+        sendEth,
+        rewards,
+        updateTime,
+        rewardTokenStored,
+        tSupply,
+        rewardPerTokenPaid,
+        rRate,
+        bal
+    } = DashboardLogic();
 
     // useEffect(() => {
     //     getData();
@@ -18,10 +27,17 @@ const Dashboard = () => {
     return (
         <div className="main-container">
             <NavbarHead />
-            <HeaderStats />
+            <HeaderStats bal={bal} tSupply={tSupply} rewards={rewards} />
             {/* <Sidebar/> */}
-            <MyStake sendEth={sendEth} />
-            <Rewards />
+            <MyStake
+                sendEth={sendEth}
+                rewardTokenStored={rewardTokenStored}
+                rRate={rRate}
+            />
+            <Rewards
+                updateTime={updateTime}
+                rewardPerTokenPaid={rewardPerTokenPaid}
+            />
             {/* <div className='app-container super-center'>
                   <Row className="data-container">
                     {pools?.map((lottery, index) => (

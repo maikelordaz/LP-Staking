@@ -1,7 +1,7 @@
 import React, {useState} from "react";
 import { Row, Col, Button, Modal, Form } from "react-bootstrap";
 
-const Rewards = () => {
+const Rewards = ({updateTime, rewardPerTokenPaid}) => {
   // const { viewAdmin } = useContext(Web3Context);
   const [show, setShow] = useState(false);
 
@@ -31,13 +31,13 @@ const Rewards = () => {
         <Col>
           <div className="quantity-stats">
             <div className="tittle-stats">Total Rewards to Date</div>
-            <div className="tittle-stats">--</div>
+            <div className="tittle-stats">{updateTime || "--"}</div>
           </div>
         </Col>
         <Col>
           <div className="quantity-stats">
             <div className="tittle-stats">Claimable Rewards</div>
-            <div className="tittle-stats">--</div>
+            <div className="tittle-stats">{rewardPerTokenPaid || "--"}</div>
           </div>
         </Col>
         <Modal show={show} onHide={handleClose}>
