@@ -6,7 +6,7 @@ const HeaderStats = () => {
         <Col className="super-center border-r">
           <div className="quantity-stats">
             <div className="super-center">
-              $250
+              --
             </div>
             <div className="tittle-stats">Total Liquidity</div>
           </div>
@@ -14,7 +14,7 @@ const HeaderStats = () => {
         <Col className="super-center border-r">
           <div className="quantity-stats">
             <div className="super-center">
-              $2.5
+              --
             </div>
             <div className="tittle-stats">Token Price</div>
           </div>
@@ -22,7 +22,7 @@ const HeaderStats = () => {
         <Col className="super-center" >
           <div className="quantity-stats">
             <div className="super-center">
-              25%
+              --
             </div>
             <div className="tittle-stats">Total Token Staked</div>
           </div>
