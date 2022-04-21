@@ -31,7 +31,8 @@ describe("LPStaking", () => {
     describe("LPStaking functions", () => {
         it("Should work in the principal workflow", async() => {
             // Principal workflow consist in a user sending ETH to add liquidity to the ETH - DAI Uniswap pool, and stake the LP tokens received in the contract
-            LPStaking.connect(Alice).swapAddLiquidityAndStakeLP({value: parseEther("1")});
+            await LPStaking.connect(Alice).swapAddLiquidityAndStakeLP({value: parseEther("1")});
+            console.log(await LPStaking.totalSupply());
         });
     });
 });

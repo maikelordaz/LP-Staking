@@ -9,6 +9,7 @@ pragma solidity ^0.8.4;
 import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 import "@openzeppelin/contracts-upgradeable/token/ERC20/IERC20Upgradeable.sol";
 import "@uniswap/v2-core/contracts/interfaces/IUniswapV2ERC20.sol";
+import "hardhat/console.sol";
 
 contract StakingRewards is Initializable {
 
@@ -93,20 +94,41 @@ contract StakingRewards is Initializable {
     }
 
     /**
-    * @notice the next three functions are the ones the user use to interact
-    * @dev the user can stake tokens, withdraw staked tokens and get the reward by his stakings
+    *   @notice Function that allows a user to stake his LP tokens obtained outside the contract
+    *   @param _amount is a uint with the amount of LP Tokens to be staked
     */
     function stake(uint _amount) internal updateReward(msg.sender) returns (bool) {
         totalSupply += _amount;
         balances[msg.sender] += _amount;
+        console.log(_amount);
         return stakingToken.transferFrom(msg.sender, address(this), _amount);
     }
 
+    /**
+    *   @notice Function that allows a user to stake his LP tokens obtained inside the contract
+    *   @param _amount is a uint with the amount of LP Tokens to be staked
+    */
+    function stakeFromContract(uint _amount) internal updateReward(msg.sender) {
+        totalSupply += _amount;
+        balances[msg.sender] += _amount;
+        console.log(_amount);
+        console.log(stakingToken.balanceOf(address(this)));
+    }
+
+    /**
+    *   @notice Function that allows a user to stake his LP tokens obtained outside the contract
+    *   @notice this function uses a signature in the Uniswap's permit function
+    *   @dev This use of the signature allows the user transfer without approve before
+    *   @param _amount is a uint with the amount of LP Tokens to be staked
+    *   @param r is a bytes32 part of the signature required by the permit function
+    *   @param s is a bytes32 part of the signature required by the permit function
+    *   @param v is a uint8 part of the signature required by the permit function
+    */
     function stakeWithPermit(
         uint _amount,
-        uint8 v,
         bytes32 r,
-        bytes32 s
+        bytes32 s,
+        uint8 v
     ) 
         internal
         updateReward(msg.sender)
@@ -118,6 +140,10 @@ contract StakingRewards is Initializable {
         return stakingToken.transferFrom(msg.sender, address(this), _amount);
     }
 
+    /**
+    *   @notice Function that allows a user to withdraw his LP Tokens staked in the contract
+    *   @param _amount is a uint with the amount of LP Tokens to be withdrawed
+    */
     function withdraw(uint _amount) external updateReward(msg.sender) {
         require(balances[msg.sender] >= _amount);
 
@@ -126,6 +152,9 @@ contract StakingRewards is Initializable {
         stakingToken.transfer(msg.sender, _amount);
     }
 
+    /**
+    *   @notice Function that allows a user to withdraw his Reward tokens
+    */
     function getReward() external updateReward(msg.sender) {
         uint reward = rewards[msg.sender];
         rewards[msg.sender] = 0;

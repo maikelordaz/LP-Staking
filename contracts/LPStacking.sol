@@ -14,7 +14,6 @@ contract LPStaking is AccessControlUpgradeable, OptimalSwap, StakingRewards  {
     address mainRouter;
     address mainFactory;
     address DAI;
-    address ETH;
 
     /// Functions
     /**
@@ -22,7 +21,6 @@ contract LPStaking is AccessControlUpgradeable, OptimalSwap, StakingRewards  {
      *  @param _router is the address of the Uniswap Router V2
      *  @param _factory is the address of the Uniswap Factory V2
      *  @param _DAI is the address of the DAI Token
-     *  @param _ETH is the address of the ETH Token
      *  @dev This address is the required by UniSwap for swaps between tokens and ETH
      *  @param _stakingToken is the address of the LP Token from Uniswap
      *  @param _rewardsToken is the address of our own Reward Token
@@ -31,20 +29,17 @@ contract LPStaking is AccessControlUpgradeable, OptimalSwap, StakingRewards  {
         address _router,
         address _factory,
         address _DAI,
-        address _ETH,
         address _stakingToken,
         address _rewardsToken
     ) public initializer {
         mainRouter = _router;
         mainFactory = _factory;
         DAI = _DAI;
-        ETH = _ETH;
 
         __OptimalSwap_init(
             mainRouter,
             mainFactory,
-            DAI,
-            ETH
+            DAI
         );
 
         __Staking_init(_stakingToken, _rewardsToken);
@@ -70,7 +65,7 @@ contract LPStaking is AccessControlUpgradeable, OptimalSwap, StakingRewards  {
     function stakeLPWithPermit(uint _amount, bytes memory sig) public {
         (bytes32 r, bytes32 s, uint8 v) = _split(sig);
 
-        require(stakeWithPermit(_amount, v, r, s));
+        require(stakeWithPermit(_amount, r, s, v));
     }
 
     /**
@@ -78,7 +73,7 @@ contract LPStaking is AccessControlUpgradeable, OptimalSwap, StakingRewards  {
      *  @dev This function allows the OptimalSwap to connect with StakingRewards
      */
     function stakeLiquidity(uint _amount) internal override virtual{
-        require(stake(_amount));
+        stakeFromContract(_amount);
     }
 
     /**
