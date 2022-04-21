@@ -2,7 +2,7 @@ import { useState, useEffect, useContext } from "react";
 import { Web3Context } from "../../web3";
 // import {CONTRACT_ADDRESS, CURRENT_NETWORK, DEPLOY_BLOCK} from '../../web3/constants';
 // import axios from "axios";
-import moment from 'moment';
+// import moment from 'moment';
 
 const HistoryLogic = () => {
   const { account, web3, getAllEvents } = useContext(Web3Context);

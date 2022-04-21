@@ -1,6 +1,5 @@
-import React, {useState, useContext, useEffect} from "react";
+import React, {useState} from "react";
 import { Row, Col, Button, Modal, Form } from "react-bootstrap";
-import { Web3Context } from "../web3";
 
 const Rewards = () => {
   // const { viewAdmin } = useContext(Web3Context);

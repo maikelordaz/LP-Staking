@@ -11,7 +11,7 @@ export default function PoolCard({lottery}) {
   const [enterAmountToPay, setEnterAmountToPay] = useState("");
   const [paymentType, setPaymentType] = useState(0);
   const [showEnterModal, setShowEnterModal] = useState(false);
-  const [showWithdrawModal, setShowWithdrawModal] = useState(false);
+  // const [showWithdrawModal, setShowWithdrawModal] = useState(false);
 
   const invest = () => {
     enterLottery(paymentType, enterAmountToPay, Number(enterAmount)*Number(lottery.ticketPrice));
