@@ -2,42 +2,27 @@
 pragma solidity ^0.8.4;
 
 /// CONTRACTS INHERITHED
-import "@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol";
 import "./OptimalSwap.sol";
 import "./StakingRewards.sol";
 
-contract LPStaking is AccessControlUpgradeable, OptimalSwap, StakingRewards  {
-    /// CONSTANTS
-    bytes32 public constant ADMIN_ROLE = keccak256("ADMIN_ROLE");
-
+contract LPStaking is OptimalSwap, StakingRewards  {
     /// Functions
     /**
      *  @notice Function initializer of this upgradeable contract
-     *  @param _router is the address of the Uniswap Router V2
-     *  @param _factory is the address of the Uniswap Factory V2
+     *  @param _ROUTER is the address of the Uniswap Router V2
+     *  @param _FACTORY is the address of the Uniswap Factory V2
      *  @param _DAI is the address of the DAI Token
      *  @dev This address is the required by UniSwap for swaps between tokens and ETH
      */
     function initialize(
-        address _router,
-        address _factory,
+        address _ROUTER,
+        address _FACTORY,
         address _DAI,
         address _stakingToken,
         address _rewardsToken
     ) public initializer {
-        __OptimalSwap_init();
-        __Staking_init();
-        __AccessControl_init();
-
-        _setupRole(ADMIN_ROLE, msg.sender);
-
-        setRouter(_router);
-        setFactory(_factory);
-        setDAI(_DAI);
-        setStakingToken(_stakingToken);
-        setRewardsToken(_rewardsToken);
-        setRewardRate(100);
-        lastUpdateTime = block.timestamp;
+        __OptimalSwap_init(_ROUTER, _FACTORY, _DAI);
+        __Staking_init(_stakingToken, _rewardsToken);
     }
 
     /**
@@ -67,15 +52,6 @@ contract LPStaking is AccessControlUpgradeable, OptimalSwap, StakingRewards  {
      */
     function stakeLiquidity(uint _amount) internal override virtual{
         stakeFromContract(_amount);
-    }
-
-    /**
-     *  @notice Function that allow to know if an address has the ADMIN_ROLE role
-     *  @param _address is the address for check
-     *  @return a boolean, true if the user has the ADMIN_ROLE role or false otherwise
-     */
-    function isAdmin(address _address) public view returns (bool) {
-        return(hasRole(ADMIN_ROLE, _address));
     }
 
     /**
@@ -109,32 +85,5 @@ contract LPStaking is AccessControlUpgradeable, OptimalSwap, StakingRewards  {
         //skip the first 96 ( first 32 is the length, next 32 is r, next 32 is s), and take the next byte
             v := byte(0, mload(add(_sig, 96)))
         }
-    }
-
-    function setStakingToken(address _stakingToken) public onlyRole(ADMIN_ROLE) {
-        stakingToken = IUniswapV2ERC20(_stakingToken);
-    }
-    
-    function setRewardsToken(address _rewardsToken) public onlyRole(ADMIN_ROLE) {
-        rewardsToken = IERC20Upgradeable(_rewardsToken);
-    }
-
-    function setRewardRate(uint _rewardRate) public onlyRole(ADMIN_ROLE) {
-        rewardRate = _rewardRate;
-    }
-
-    function setRouter(address _ROUTER) public onlyRole(ADMIN_ROLE) {
-        ROUTER = _ROUTER;
-        router = IUniswapV2Router02(ROUTER);
-    }
-    
-    function setFactory(address _FACTORY) public onlyRole(ADMIN_ROLE) {
-        FACTORY = _FACTORY;
-        factory = IUniswapV2Factory(FACTORY);
-    }
-    
-    function setDAI(address _DAI) public onlyRole(ADMIN_ROLE) {
-        DAI = _DAI;
-        dai = IERC20(DAI); 
     }
 }

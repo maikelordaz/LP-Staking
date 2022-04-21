@@ -24,7 +24,6 @@ describe("LPStaking", () => {
 
     describe("Deploy", () => {
         it("Should set the variable correct", async () => {
-            expect(await LPStaking.isAdmin(owner.address)).to.be.equal(true);
             expect(await LPStaking.rewardRate()).to.be.equal(100);
             expect(await LPStaking.rewardPerTokenStored()).to.be.equal(0);
             expect(await LPStaking.totalSupply()).to.be.equal(0);

@@ -34,7 +34,21 @@ contract OptimalSwap is Initializable {
     event Log(string message, uint value);
 
 /// FUNCTIONS
-    function __OptimalSwap_init() internal onlyInitializing {}
+    function __OptimalSwap_init(
+        address _ROUTER,
+        address _FACTORY,
+        address _DAI
+    ) 
+        internal
+        onlyInitializing
+    {
+        ROUTER = _ROUTER;
+        router = IUniswapV2Router02(ROUTER);
+        FACTORY = _FACTORY;
+        factory = IUniswapV2Factory(FACTORY);
+        DAI = _DAI;
+        dai = IERC20(DAI); 
+    }
     
     /**
     * @notice an auxiliar function to get the square root

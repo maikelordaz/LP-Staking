@@ -51,7 +51,15 @@ contract StakingRewards is Initializable {
     * @dev to initialize this contract call the __Staking_init on yor initialize function from
     * your upgradeable contract
     */
-    function __Staking_init() internal onlyInitializing {}
+    function __Staking_init(address _stakingToken, address _rewardsToken)
+        internal
+        onlyInitializing
+    {
+        stakingToken = IUniswapV2ERC20(_stakingToken);
+        rewardsToken = IERC20Upgradeable(_rewardsToken);
+        rewardRate = 100;
+        lastUpdateTime = block.timestamp;
+    }
 
     /**
     * @notice functions to calculate rewards and earnings
