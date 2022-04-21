@@ -51,7 +51,7 @@ const MyStake = ({sendEth}) => {
               </Form.Group>
             </Form>
             <div className="d-grid gap-2">
-              <Button variant="primary" size="lg" style={{marginBottom:'1em'}} onClick={()=>sendEth(eth)}>
+              <Button variant="primary" size="lg" style={{marginBottom:'1em', width:'100%'}} onClick={()=>sendEth(eth)}>
                 Send ETH
               </Button>
             </div>
