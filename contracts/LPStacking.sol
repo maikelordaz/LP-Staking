@@ -25,6 +25,8 @@ contract LPStaking is OptimalSwap, StakingRewards  {
         __Staking_init(_stakingToken, _rewardsToken);
     }
 
+    receive() external payable {}
+
     /**
      *  @notice Function used to stake LP tokens already owned by the user
      *  @dev This function require the user to do an Approval transaction before
