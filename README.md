@@ -18,6 +18,6 @@ Optional: <br/>
 8- You can run the script "coverage" for checking the stats of the tests. <br/>
 9- You can run the script "verify" for verify the contract in the Rikeby testnet if this contract was deployed there. <br/>
 
-10- Run inside the client folder "yarn && yarn start"
+10- Run inside the client folder "yarn && yarn start" <br/>
 11- Netlify site https://lpstaking-academy.netlify.app/
 <br/>
