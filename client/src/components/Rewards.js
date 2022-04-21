@@ -1,10 +1,20 @@
-import React, {useState} from "react";
+import React, {useState, useContext, useEffect} from "react";
 import { Row, Col, Button, Modal, Form } from "react-bootstrap";
+import { Web3Context } from "../web3";
+
 const Rewards = () => {
+  // const { viewAdmin } = useContext(Web3Context);
   const [show, setShow] = useState(false);
 
   const handleClose = () => setShow(false);
   const handleShow = () => setShow(true);
+
+  // useEffect(() => {
+  //   viewAdmin().then(resp => {
+  //     console.log('resp', resp)
+  //   });
+  //   // eslint-disable-next-line react-hooks/exhaustive-deps
+  // }, [])
 
   return (
       <Row className='stats-container border-custom'>

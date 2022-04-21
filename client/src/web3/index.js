@@ -12,6 +12,9 @@ import Authereum from "authereum";
 import Lottery from '../utils/abi/Lottery.json';
 import IERC20 from '../utils/abi/IERC20.json';
 import UNISWAP from '../utils/abi/IUniswapV2Router02.json';
+
+import LPStaking from '../utils/abi/LPStaking.json';
+
 import {CONTRACT_ADDRESS, CURRENT_NETWORK, DEPLOY_BLOCK, WETH_ADDRESS, DAI_ADDRESS, USDC_ADDRESS, USDT_ADDRESS} from './constants';
 
 let web3 = null;
@@ -104,12 +107,18 @@ export const Web3Provider = ({ children }) => {
       web3 = new Web3(provider);
       window.web3 = web3;
 
+      const lpstaking = new web3.eth.Contract(LPStaking.abi, CONTRACT_ADDRESS);
+      console.log('lpstaking', lpstaking)
       const lottery = new web3.eth.Contract(Lottery.abi, CONTRACT_ADDRESS);
+
+      console.log('lpstaking', lpstaking)
       const dai = new web3.eth.Contract(IERC20.abi, DAI_ADDRESS);
       const usdc = new web3.eth.Contract(IERC20.abi, USDC_ADDRESS);
       const usdt = new web3.eth.Contract(IERC20.abi, USDT_ADDRESS);
       const uniswap = new web3.eth.Contract(UNISWAP.abi, "0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D");
-      setContracts({...state.contracts, lottery, dai, usdc, usdt, uniswap});
+      setContracts({...state.contracts, lpstaking, lottery, dai, usdc, usdt, uniswap});
+      window.lpstaking = lpstaking;
+      console.log('window.lpstaking', window.lpstaking)
       window.lottery = lottery;
       window.dai = dai;
       window.usdc = usdc;
@@ -145,12 +154,14 @@ export const Web3Provider = ({ children }) => {
       web3 = new Web3(host);
       window.web3 = web3;
 
+      const lpstaking = new web3.eth.Contract(LPStaking.abi, CONTRACT_ADDRESS);
       const lottery = new web3.eth.Contract(Lottery.abi, CONTRACT_ADDRESS);
       const dai = new web3.eth.Contract(IERC20.abi, DAI_ADDRESS);
       const usdc = new web3.eth.Contract(IERC20.abi, USDC_ADDRESS);
       const usdt = new web3.eth.Contract(IERC20.abi, USDT_ADDRESS);
       const uniswap = new web3.eth.Contract(UNISWAP.abi, "0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D");
-      setContracts({...state.contracts, lottery, dai, usdc, usdt, uniswap});
+      setContracts({...state.contracts, lpstaking, lottery, dai, usdc, usdt, uniswap});
+      window.lpstaking = lpstaking;
       window.lottery = lottery;
       window.dai = dai;
       window.usdc = usdc;
@@ -415,6 +426,17 @@ export const Web3Provider = ({ children }) => {
   }
   //OWNER
 
+  //test staking
+  const addLiquidityAndReturnLP = async (ammount) => {
+    if(state.account){
+      try {
+        await state.contracts.lpstaking.methods.swapAddLiquidityAndReturnLP().send({from: state.account, value: web3.utils.toWei(ammount), gas: 39000});
+      } catch (error) {
+        console.log(`error`, error)
+      }
+    }
+  }
+
   useEffect(() => {
     if(localStorage.getItem("WEB3_CONNECT_CACHED_PROVIDER")){
       connectWeb3();
@@ -444,7 +466,8 @@ export const Web3Provider = ({ children }) => {
         requestWinnerToBePicked,
         OwnerWithdraw,
         getLotteries,
-        buyTokens
+        buyTokens,
+        addLiquidityAndReturnLP
       }}
     >
       {children}
