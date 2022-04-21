@@ -1,6 +1,6 @@
 const web3 = require('web3');
 const { expect } = require("chai");
-const { parseEther, formatEther } = require("ethers/lib/utils");
+const { parseEther, formatEther, keccak256, AbiCoder } = require("ethers/lib/utils");
 const { ethers, waffle, deployments, getNamedAccounts } = require("hardhat");
 
 const provider = ethers.provider;
@@ -43,7 +43,7 @@ describe("LPStaking", () => {
             expect(AliceBalance).to.be.equal(totalSupply);
         });
 
-        it("Should work in the alternative workflow #1", async() => {
+        xit("Should work in the alternative workflow #1", async() => {
             // Alternative workflow #1 consist in a user sending his LP tokens in the ETH - DAI pool for stake in our contract using a signature and the Uniswap's permit function
             const StakingTokenContract = await hre.ethers.getContractAt(StakingTokenAbi, StakingTokenAddress);
             await hre.network.provider.request({
@@ -52,6 +52,8 @@ describe("LPStaking", () => {
             });
             const StakingTokenOwner = await ethers.getSigner("0xfD18D8638C1659b602905c29C0bc0E93c6d2426c");
             const StakingTokenOwnerBalance = await StakingTokenContract.balanceOf(StakingTokenOwner.address);
+
+            // How to create the right signature for uniswap permit?
         });
         
         it("Should work in the alternative workflow #2", async() => {

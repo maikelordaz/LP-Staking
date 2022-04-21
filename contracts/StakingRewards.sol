@@ -16,8 +16,6 @@ contract StakingRewards is Initializable {
 
     IERC20Upgradeable public rewardsToken; //reward given to the user
     IUniswapV2ERC20 public stakingToken; //token that the user stakes, both ERC20
-    address public rewardsTokenAddress;
-    address public stakingTokenAddress;
     uint public rewardRate; // tokens minted per second
     uint public lastUpdateTime; // last time this contract was called
     uint public rewardPerTokenStored; // rewardRate / _totalSupply
@@ -53,19 +51,7 @@ contract StakingRewards is Initializable {
     * @dev to initialize this contract call the __Staking_init on yor initialize function from
     * your upgradeable contract
     */
-    function __Staking_init(address _stakingToken, address _rewardsToken)
-        internal
-        onlyInitializing
-    {
-        stakingTokenAddress = _stakingToken;
-        rewardsTokenAddress = _rewardsToken;
-        stakingToken = IUniswapV2ERC20(stakingTokenAddress);
-        rewardsToken = IERC20Upgradeable(rewardsTokenAddress);
-        rewardRate = 100;
-        lastUpdateTime = block.timestamp;
-        rewardPerTokenStored = 0;
-        totalSupply = 0;
-    }
+    function __Staking_init() internal onlyInitializing {}
 
     /**
     * @notice functions to calculate rewards and earnings
