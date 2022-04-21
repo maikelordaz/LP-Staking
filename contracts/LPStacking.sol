@@ -10,11 +10,6 @@ contract LPStaking is AccessControlUpgradeable, OptimalSwap, StakingRewards  {
     /// CONSTANTS
     bytes32 public constant ADMIN_ROLE = keccak256("ADMIN_ROLE");
 
-    /// Variables
-    address mainRouter;
-    address mainFactory;
-    address DAI;
-
     /// Functions
     /**
      *  @notice Function initializer of this upgradeable contract
@@ -32,18 +27,10 @@ contract LPStaking is AccessControlUpgradeable, OptimalSwap, StakingRewards  {
         address _stakingToken,
         address _rewardsToken
     ) public initializer {
-        mainRouter = _router;
-        mainFactory = _factory;
-        DAI = _DAI;
-
-        __OptimalSwap_init(
-            mainRouter,
-            mainFactory,
-            DAI
-        );
-
+        __OptimalSwap_init(_router, _factory, _DAI);
         __Staking_init(_stakingToken, _rewardsToken);
         __AccessControl_init();
+
         _setupRole(ADMIN_ROLE, msg.sender);
     }
 

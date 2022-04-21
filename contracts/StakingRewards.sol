@@ -9,7 +9,6 @@ pragma solidity ^0.8.4;
 import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 import "@openzeppelin/contracts-upgradeable/token/ERC20/IERC20Upgradeable.sol";
 import "@uniswap/v2-core/contracts/interfaces/IUniswapV2ERC20.sol";
-import "hardhat/console.sol";
 
 contract StakingRewards is Initializable {
 
@@ -17,6 +16,8 @@ contract StakingRewards is Initializable {
 
     IERC20Upgradeable public rewardsToken; //reward given to the user
     IUniswapV2ERC20 public stakingToken; //token that the user stakes, both ERC20
+    address public rewardsTokenAddress;
+    address public stakingTokenAddress;
     uint public rewardRate; // tokens minted per second
     uint public lastUpdateTime; // last time this contract was called
     uint public rewardPerTokenStored; // rewardRate / _totalSupply
@@ -56,18 +57,10 @@ contract StakingRewards is Initializable {
         internal
         onlyInitializing
     {
-        __Staking_init_unchained(_stakingToken, _rewardsToken);
-    }
-
-    function __Staking_init_unchained(
-        address _stakingToken,
-        address _rewardsToken
-    ) 
-        internal 
-        onlyInitializing
-    {
-        stakingToken = IUniswapV2ERC20(_stakingToken);
-        rewardsToken = IERC20Upgradeable(_rewardsToken);
+        stakingTokenAddress = _stakingToken;
+        rewardsTokenAddress = _rewardsToken;
+        stakingToken = IUniswapV2ERC20(stakingTokenAddress);
+        rewardsToken = IERC20Upgradeable(rewardsTokenAddress);
         rewardRate = 100;
         lastUpdateTime = block.timestamp;
         rewardPerTokenStored = 0;
@@ -100,7 +93,6 @@ contract StakingRewards is Initializable {
     function stake(uint _amount) internal updateReward(msg.sender) returns (bool) {
         totalSupply += _amount;
         balances[msg.sender] += _amount;
-        console.log(_amount);
         return stakingToken.transferFrom(msg.sender, address(this), _amount);
     }
 
@@ -111,8 +103,6 @@ contract StakingRewards is Initializable {
     function stakeFromContract(uint _amount) internal updateReward(msg.sender) {
         totalSupply += _amount;
         balances[msg.sender] += _amount;
-        console.log(_amount);
-        console.log(stakingToken.balanceOf(address(this)));
     }
 
     /**
