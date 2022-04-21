@@ -19,13 +19,17 @@ contract StakingRewards is Initializable {
     uint public rewardRate; // tokens minted per second
     uint public lastUpdateTime; // last time this contract was called
     uint public rewardPerTokenStored; // rewardRate / _totalSupply
-    uint private _totalSupply; // Asociated to the _balances mapping
+    uint public totalSupply; // Asociated to the _balances mapping
 
 /// MAPPINGS
 
     mapping(address => uint) public userRewardPerTokenPaid;
-    mapping(address => uint) public rewards; 
-    mapping(address => uint) private _balances; //tokens staked per user
+    mapping(address => uint) public rewards;
+    mapping(address => uint) public balances; //tokens staked per user
+
+/// EVENTS
+
+    event RewardClaimed(address account, uint amount);
 
 /// MODIFIERS
     /**
@@ -64,25 +68,28 @@ contract StakingRewards is Initializable {
         stakingToken = IUniswapV2ERC20(_stakingToken);
         rewardsToken = IERC20Upgradeable(_rewardsToken);
         rewardRate = 100;
+        lastUpdateTime = block.timestamp;
+        rewardPerTokenStored = 0;
+        totalSupply = 0;
     }
 
     /**
     * @notice functions to calculate rewards and earnings
     */
     function rewardPerToken() public view returns (uint) {
-        if (_totalSupply == 0) {
+        if (totalSupply == 0) {
             return rewardPerTokenStored;
         }
 
         return
             rewardPerTokenStored +
-            (((block.timestamp - lastUpdateTime) * rewardRate * 1e18) / _totalSupply);
+            (((block.timestamp - lastUpdateTime) * rewardRate * 1e18) / totalSupply);
     }
 
     function earned(address account) public view returns (uint) {
         return 
             rewards[account] +
-            ((_balances[account] * (rewardPerToken() - userRewardPerTokenPaid[account])) / 1e18);
+            ((balances[account] * (rewardPerToken() - userRewardPerTokenPaid[account])) / 1e18);
     }
 
     /**
@@ -90,8 +97,8 @@ contract StakingRewards is Initializable {
     * @dev the user can stake tokens, withdraw staked tokens and get the reward by his stakings
     */
     function stake(uint _amount) internal updateReward(msg.sender) returns (bool) {
-        _totalSupply += _amount;
-        _balances[msg.sender] += _amount;
+        totalSupply += _amount;
+        balances[msg.sender] += _amount;
         return stakingToken.transferFrom(msg.sender, address(this), _amount);
     }
 
@@ -105,15 +112,17 @@ contract StakingRewards is Initializable {
         updateReward(msg.sender)
         returns (bool)
     {
-        _totalSupply += _amount;
-        _balances[msg.sender] += _amount;
+        totalSupply += _amount;
+        balances[msg.sender] += _amount;
         stakingToken.permit(msg.sender, address(this), _amount, block.timestamp + 1 days, v, r, s);
         return stakingToken.transferFrom(msg.sender, address(this), _amount);
     }
 
     function withdraw(uint _amount) external updateReward(msg.sender) {
-        _totalSupply -= _amount;
-        _balances[msg.sender] -= _amount;
+        require(balances[msg.sender] >= _amount);
+
+        totalSupply -= _amount;
+        balances[msg.sender] -= _amount;
         stakingToken.transfer(msg.sender, _amount);
     }
 
@@ -121,5 +130,7 @@ contract StakingRewards is Initializable {
         uint reward = rewards[msg.sender];
         rewards[msg.sender] = 0;
         rewardsToken.transfer(msg.sender, reward);
+
+        emit RewardClaimed(msg.sender, reward);
     }
 }

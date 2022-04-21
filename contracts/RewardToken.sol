@@ -2,11 +2,15 @@
 pragma solidity >=0.8.0 <0.9.0;
 
 import '@openzeppelin/contracts-upgradeable/token/ERC20/ERC20Upgradeable.sol';
-import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol";
 
-contract RewardToken is ERC20Upgradeable, OwnableUpgradeable {
+contract RewardToken is ERC20Upgradeable, AccessControlUpgradeable {
+    /// CONSTANTS
+    bytes32 public constant ADMIN_ROLE = keccak256("ADMIN_ROLE");
+
     /// VARIABLES
-    uint cost = 0.001 ether;
+    uint cost;
+    address recipientAddress;
     /**
      *  @notice Mapping used for store the URI of every token
      */
@@ -18,7 +22,11 @@ contract RewardToken is ERC20Upgradeable, OwnableUpgradeable {
      */
     function initialize(uint256 _supply) public initializer {
         __ERC20_init('RewardToken', 'RT');
-        __Ownable_init();
+        __AccessControl_init();
+        _setupRole(ADMIN_ROLE, msg.sender);
+
+        cost = 0.001 ether;
+        recipientAddress = msg.sender;
         
         _mint(msg.sender, _supply);
     }
@@ -43,8 +51,8 @@ contract RewardToken is ERC20Upgradeable, OwnableUpgradeable {
     /**
      *  @notice Function that allow the owner to withdraw all the funds
      */
-    function withdraw() public onlyOwner {
-        (bool success, ) = owner().call{value: address(this).balance}("");
+    function withdraw() public onlyRole(ADMIN_ROLE) {
+        (bool success, ) = recipientAddress.call{value: address(this).balance}("");
         require(success);
     }
 }
