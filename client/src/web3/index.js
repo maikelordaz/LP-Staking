@@ -249,7 +249,10 @@ export const Web3Provider = ({ children }) => {
   const balances = async () => {
     if(state.account){
       try {
-        await state.contracts.lpstaking.methods.balances().call();
+        const balance = await state.contracts.lpstaking.methods
+        .balances(state.account)
+        .call();
+        return{balance}
       } catch (error) {
         console.log(`error`, error)
       }

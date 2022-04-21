@@ -66,6 +66,7 @@ const DashboardLogic = () => {
     if(web3){
       let resp = await balances();
       setBal(resp)
+      console.log('balances', resp)
     }
   }
 
