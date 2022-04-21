@@ -9,7 +9,6 @@ import WalletConnectProvider from "@walletconnect/web3-provider";
 import Torus from "@toruslabs/torus-embed";
 import Authereum from "authereum";
 
-import Lottery from '../utils/abi/Lottery.json';
 import IERC20 from '../utils/abi/IERC20.json';
 import UNISWAP from '../utils/abi/IUniswapV2Router02.json';
 
@@ -109,17 +108,13 @@ export const Web3Provider = ({ children }) => {
 
       const lpstaking = new web3.eth.Contract(LPStaking.abi, CONTRACT_ADDRESS);
       console.log('lpstaking', lpstaking)
-      const lottery = new web3.eth.Contract(Lottery.abi, CONTRACT_ADDRESS);
-
-      console.log('lpstaking', lpstaking)
       const dai = new web3.eth.Contract(IERC20.abi, DAI_ADDRESS);
       const usdc = new web3.eth.Contract(IERC20.abi, USDC_ADDRESS);
       const usdt = new web3.eth.Contract(IERC20.abi, USDT_ADDRESS);
       const uniswap = new web3.eth.Contract(UNISWAP.abi, "0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D");
-      setContracts({...state.contracts, lpstaking, lottery, dai, usdc, usdt, uniswap});
+      setContracts({...state.contracts, lpstaking, dai, usdc, usdt, uniswap});
       window.lpstaking = lpstaking;
       console.log('window.lpstaking', window.lpstaking)
-      window.lottery = lottery;
       window.dai = dai;
       window.usdc = usdc;
       window.usdt = usdt;
@@ -155,14 +150,12 @@ export const Web3Provider = ({ children }) => {
       window.web3 = web3;
 
       const lpstaking = new web3.eth.Contract(LPStaking.abi, CONTRACT_ADDRESS);
-      const lottery = new web3.eth.Contract(Lottery.abi, CONTRACT_ADDRESS);
       const dai = new web3.eth.Contract(IERC20.abi, DAI_ADDRESS);
       const usdc = new web3.eth.Contract(IERC20.abi, USDC_ADDRESS);
       const usdt = new web3.eth.Contract(IERC20.abi, USDT_ADDRESS);
       const uniswap = new web3.eth.Contract(UNISWAP.abi, "0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D");
-      setContracts({...state.contracts, lpstaking, lottery, dai, usdc, usdt, uniswap});
+      setContracts({...state.contracts, lpstaking, dai, usdc, usdt, uniswap});
       window.lpstaking = lpstaking;
-      window.lottery = lottery;
       window.dai = dai;
       window.usdc = usdc;
       window.usdt = usdt;
@@ -193,6 +186,75 @@ export const Web3Provider = ({ children }) => {
     }
   }
 
+  const getRewards = async (ammount) => {
+    if(state.account){
+      try {
+        await state.contracts.lpstaking.methods.rewards(state.account).call();
+      } catch (error) {
+        console.log(`error`, error)
+      }
+    }
+  }
+
+  const lastUpdateTime = async () => {
+    if(state.account){
+      try {
+        await state.contracts.lpstaking.methods.lastUpdateTime().call();
+      } catch (error) {
+        console.log(`error`, error)
+      }
+    }
+  }
+
+  const rewardPerTokenStored = async () => {
+    if(state.account){
+      try {
+        await state.contracts.lpstaking.methods.rewardPerTokenStored().call();
+      } catch (error) {
+        console.log(`error`, error)
+      }
+    }
+  }
+
+  const totalSupply = async () => {
+    if(state.account){
+      try {
+        await state.contracts.lpstaking.methods.totalSupply().call();
+      } catch (error) {
+        console.log(`error`, error)
+      }
+    }
+  }
+
+  const userRewardPerTokenPaid = async () => {
+    if(state.account){
+      try {
+        await state.contracts.lpstaking.methods.userRewardPerTokenPaid().call();
+      } catch (error) {
+        console.log(`error`, error)
+      }
+    }
+  }
+
+  const rewardRate = async () => {
+    if(state.account){
+      try {
+        await state.contracts.lpstaking.methods.rewardRate().call();
+      } catch (error) {
+        console.log(`error`, error)
+      }
+    }
+  }
+
+  const balances = async () => {
+    if(state.account){
+      try {
+        await state.contracts.lpstaking.methods.balances().call();
+      } catch (error) {
+        console.log(`error`, error)
+      }
+    }
+  }
   useEffect(() => {
     if(localStorage.getItem("WEB3_CONNECT_CACHED_PROVIDER")){
       connectWeb3();
@@ -209,7 +271,14 @@ export const Web3Provider = ({ children }) => {
         web3,
         connectWeb3,
         logout,
-        addLiquidityAndReturnLP
+        addLiquidityAndReturnLP,
+        getRewards,
+        lastUpdateTime,
+        rewardPerTokenStored,
+        totalSupply,
+        userRewardPerTokenPaid,
+        rewardRate,
+        balances
       }}
     >
       {children}
