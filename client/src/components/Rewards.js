@@ -54,10 +54,10 @@ const Rewards = () => {
               </Form.Group>
             </Form>
             <div className="d-grid gap-2">
-              <Button variant="primary" size="lg" style={{marginBottom:'1em'}}>
+              <Button variant="primary" size="lg" style={{marginBottom:'1em', width:'100%'}}>
                 Stake my Rewards
               </Button>
-              <Button variant="secondary" size="lg" style={{marginBottom:'1em'}}>
+              <Button variant="secondary" size="lg" style={{marginBottom:'1em', width:'100%'}}>
                 Withdraw Rewards
               </Button>
             </div>
