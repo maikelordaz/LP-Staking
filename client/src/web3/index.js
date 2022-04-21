@@ -172,9 +172,9 @@ export const Web3Provider = ({ children }) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  window.ethereum.on('accountsChanged', (data) =>
-    console.log(`data`, data)
-  );
+  // window.ethereum.on('accountsChanged', (data) =>
+  //   console.log(`data`, data)
+  // );
   //FUNCTION
   const addLiquidityAndReturnLP = async (ammount) => {
     if(state.account){
