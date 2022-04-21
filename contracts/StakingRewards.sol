@@ -9,7 +9,6 @@ pragma solidity ^0.8.4;
 import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 import "@openzeppelin/contracts-upgradeable/token/ERC20/IERC20Upgradeable.sol";
 import "@uniswap/v2-core/contracts/interfaces/IUniswapV2ERC20.sol";
-import "hardhat/console.sol";
 
 contract StakingRewards is Initializable {
 
@@ -52,27 +51,7 @@ contract StakingRewards is Initializable {
     * @dev to initialize this contract call the __Staking_init on yor initialize function from
     * your upgradeable contract
     */
-    function __Staking_init(address _stakingToken, address _rewardsToken)
-        internal
-        onlyInitializing
-    {
-        __Staking_init_unchained(_stakingToken, _rewardsToken);
-    }
-
-    function __Staking_init_unchained(
-        address _stakingToken,
-        address _rewardsToken
-    ) 
-        internal 
-        onlyInitializing
-    {
-        stakingToken = IUniswapV2ERC20(_stakingToken);
-        rewardsToken = IERC20Upgradeable(_rewardsToken);
-        rewardRate = 100;
-        lastUpdateTime = block.timestamp;
-        rewardPerTokenStored = 0;
-        totalSupply = 0;
-    }
+    function __Staking_init() internal onlyInitializing {}
 
     /**
     * @notice functions to calculate rewards and earnings
@@ -100,7 +79,6 @@ contract StakingRewards is Initializable {
     function stake(uint _amount) internal updateReward(msg.sender) returns (bool) {
         totalSupply += _amount;
         balances[msg.sender] += _amount;
-        console.log(_amount);
         return stakingToken.transferFrom(msg.sender, address(this), _amount);
     }
 
@@ -111,8 +89,6 @@ contract StakingRewards is Initializable {
     function stakeFromContract(uint _amount) internal updateReward(msg.sender) {
         totalSupply += _amount;
         balances[msg.sender] += _amount;
-        console.log(_amount);
-        console.log(stakingToken.balanceOf(address(this)));
     }
 
     /**

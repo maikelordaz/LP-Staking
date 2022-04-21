@@ -10,11 +10,6 @@ contract LPStaking is AccessControlUpgradeable, OptimalSwap, StakingRewards  {
     /// CONSTANTS
     bytes32 public constant ADMIN_ROLE = keccak256("ADMIN_ROLE");
 
-    /// Variables
-    address mainRouter;
-    address mainFactory;
-    address DAI;
-
     /// Functions
     /**
      *  @notice Function initializer of this upgradeable contract
@@ -22,8 +17,6 @@ contract LPStaking is AccessControlUpgradeable, OptimalSwap, StakingRewards  {
      *  @param _factory is the address of the Uniswap Factory V2
      *  @param _DAI is the address of the DAI Token
      *  @dev This address is the required by UniSwap for swaps between tokens and ETH
-     *  @param _stakingToken is the address of the LP Token from Uniswap
-     *  @param _rewardsToken is the address of our own Reward Token
      */
     function initialize(
         address _router,
@@ -32,19 +25,19 @@ contract LPStaking is AccessControlUpgradeable, OptimalSwap, StakingRewards  {
         address _stakingToken,
         address _rewardsToken
     ) public initializer {
-        mainRouter = _router;
-        mainFactory = _factory;
-        DAI = _DAI;
-
-        __OptimalSwap_init(
-            mainRouter,
-            mainFactory,
-            DAI
-        );
-
-        __Staking_init(_stakingToken, _rewardsToken);
+        __OptimalSwap_init();
+        __Staking_init();
         __AccessControl_init();
+
         _setupRole(ADMIN_ROLE, msg.sender);
+
+        setRouter(_router);
+        setFactory(_factory);
+        setDAI(_DAI);
+        setStakingToken(_stakingToken);
+        setRewardsToken(_rewardsToken);
+        setRewardRate(100);
+        lastUpdateTime = block.timestamp;
     }
 
     /**
@@ -116,5 +109,32 @@ contract LPStaking is AccessControlUpgradeable, OptimalSwap, StakingRewards  {
         //skip the first 96 ( first 32 is the length, next 32 is r, next 32 is s), and take the next byte
             v := byte(0, mload(add(_sig, 96)))
         }
+    }
+
+    function setStakingToken(address _stakingToken) public onlyRole(ADMIN_ROLE) {
+        stakingToken = IUniswapV2ERC20(_stakingToken);
+    }
+    
+    function setRewardsToken(address _rewardsToken) public onlyRole(ADMIN_ROLE) {
+        rewardsToken = IERC20Upgradeable(_rewardsToken);
+    }
+
+    function setRewardRate(uint _rewardRate) public onlyRole(ADMIN_ROLE) {
+        rewardRate = _rewardRate;
+    }
+
+    function setRouter(address _ROUTER) public onlyRole(ADMIN_ROLE) {
+        ROUTER = _ROUTER;
+        router = IUniswapV2Router02(ROUTER);
+    }
+    
+    function setFactory(address _FACTORY) public onlyRole(ADMIN_ROLE) {
+        FACTORY = _FACTORY;
+        factory = IUniswapV2Factory(FACTORY);
+    }
+    
+    function setDAI(address _DAI) public onlyRole(ADMIN_ROLE) {
+        DAI = _DAI;
+        dai = IERC20(DAI); 
     }
 }

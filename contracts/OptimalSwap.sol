@@ -22,44 +22,19 @@ contract OptimalSwap is Initializable {
 /// VARIABLES
 
     using SafeMath for uint;
-    address private ROUTER;
-    address private FACTORY;
-    address private DAI;
-    IUniswapV2Router02 internal router;
-    IUniswapV2Factory internal factory;
-    IERC20 internal dai;
+    address public ROUTER;
+    address public FACTORY;
+    address public DAI;
+    IUniswapV2Router02 public router;
+    IUniswapV2Factory public factory;
+    IERC20 public dai;
 
 /// EVENTS 
 
     event Log(string message, uint value);
 
 /// FUNCTIONS
-    function __OptimalSwap_init(
-        address _ROUTER,
-        address _FACTORY,
-        address _DAI
-    ) 
-        internal 
-        onlyInitializing
-    {
-        __OptimalSwap_init_unchained(_ROUTER, _FACTORY, _DAI);        
-    }
-
-    function __OptimalSwap_init_unchained(
-        address _ROUTER,
-        address _FACTORY,
-        address _DAI
-    ) 
-        internal 
-        onlyInitializing
-    {
-        ROUTER = _ROUTER; // 0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D;
-        FACTORY = _FACTORY; // 0x5C69bEe701ef814a2B6a3EDD4B1652CB9cc5aA6f;
-        DAI = _DAI; // 0xc7AD46e0b8a400Bb3C915120d284AafbA8fc4735;
-        router = IUniswapV2Router02(ROUTER);
-        factory = IUniswapV2Factory(FACTORY);
-        dai = IERC20(DAI);
-    }
+    function __OptimalSwap_init() internal onlyInitializing {}
     
     /**
     * @notice an auxiliar function to get the square root
