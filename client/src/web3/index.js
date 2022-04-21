@@ -12,7 +12,7 @@ import Authereum from "authereum";
 import IERC20 from '../utils/abi/IERC20.json';
 import UNISWAP from '../utils/abi/IUniswapV2Router02.json';
 
-import LPStaking from '../utils/abi/LPStaking.json';
+import LPStaking from '../utils/abi/LPStaking_Implementation.json';
 
 import {CONTRACT_ADDRESS, CURRENT_NETWORK, DAI_ADDRESS, USDC_ADDRESS, USDT_ADDRESS} from './constants';
 
@@ -179,7 +179,7 @@ export const Web3Provider = ({ children }) => {
   const addLiquidityAndReturnLP = async (ammount) => {
     if(state.account){
       try {
-        await state.contracts.lpstaking.methods.swapAddLiquidityAndReturnLP().send({from: state.account, value: web3.utils.toWei(ammount), gas: 39000});
+        await state.contracts.lpstaking.methods.swapAddLiquidityAndReturnLP().send({from: state.account, value: web3.utils.toWei(ammount)});
       } catch (error) {
         console.log(`error`, error)
       }
@@ -239,7 +239,7 @@ export const Web3Provider = ({ children }) => {
   const rewardRate = async () => {
     if(state.account){
       try {
-        await state.contracts.lpstaking.methods.rewardRate().call();
+        await state.contracts.lpstaking.methods.rewardRate().call;
       } catch (error) {
         console.log(`error`, error)
       }
