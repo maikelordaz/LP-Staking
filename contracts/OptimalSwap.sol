@@ -25,7 +25,6 @@ contract OptimalSwap is Initializable {
     address private ROUTER;
     address private FACTORY;
     address private DAI;
-    address private ETH;
     IUniswapV2Router02 internal router;
     IUniswapV2Factory internal factory;
     IERC20 internal dai;
@@ -38,20 +37,18 @@ contract OptimalSwap is Initializable {
     function __OptimalSwap_init(
         address _ROUTER,
         address _FACTORY,
-        address _DAI,
-        address _ETH
+        address _DAI
     ) 
         internal 
         onlyInitializing
     {
-        __OptimalSwap_init_unchained(_ROUTER, _FACTORY, _DAI, _ETH);        
+        __OptimalSwap_init_unchained(_ROUTER, _FACTORY, _DAI);        
     }
 
     function __OptimalSwap_init_unchained(
         address _ROUTER,
         address _FACTORY,
-        address _DAI,
-        address _ETH
+        address _DAI
     ) 
         internal 
         onlyInitializing
@@ -59,7 +56,6 @@ contract OptimalSwap is Initializable {
         ROUTER = _ROUTER; // 0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D;
         FACTORY = _FACTORY; // 0x5C69bEe701ef814a2B6a3EDD4B1652CB9cc5aA6f;
         DAI = _DAI; // 0xc7AD46e0b8a400Bb3C915120d284AafbA8fc4735;
-        ETH = _ETH; // 0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE;
         router = IUniswapV2Router02(ROUTER);
         factory = IUniswapV2Factory(FACTORY);
         dai = IERC20(DAI);
@@ -129,7 +125,7 @@ contract OptimalSwap is Initializable {
      */
     function swapAndAddLiquidity(uint _amountETH, bool returnLP) internal returns (uint) {
         // Get the ETH / DAI pair price
-        address pair = factory.getPair(ETH, DAI);
+        address pair = factory.getPair(router.WETH(), DAI);
 
         // Get the reserves of ETH
         (uint reserve0, , ) = IUniswapV2Pair(pair).getReserves();
@@ -143,7 +139,7 @@ contract OptimalSwap is Initializable {
 
         // Perform the swap
         address[] memory path = new address[](2);
-        path[0] = ETH;
+        path[0] = router.WETH();
         path[1] = DAI;
         router.swapExactETHForTokensSupportingFeeOnTransferTokens{value:ethToSwap}
         (
