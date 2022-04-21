@@ -72,13 +72,14 @@ const DashboardLogic = () => {
 
   useEffect(() => {
     if(web3){
+        console.log(web3);
       getR();
       getLastUpdateTime();
       getRewardPerTokenStored();
       getTotalSupply();
       getUserRewardPerTokenPaid();
       getRewardRate();
-      getBalances()
+      getBalances();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [web3])
