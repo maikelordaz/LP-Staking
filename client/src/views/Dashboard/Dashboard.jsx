@@ -1,29 +1,26 @@
-import React, { useEffect } from "react";
-import { Row, Col } from "react-bootstrap";
+import React from "react";
 import HeaderStats from "../../components/HeaderStats";
 import MyStake from "../../components/MyStake";
 import NavbarHead from "../../components/Navbar";
-import PoolCard from "../../components/PoolCard";
 import Rewards from "../../components/Rewards";
 
 // COMPONENTS
-import Sidebar from "../../components/Sidebar";
 import DashboardLogic from "./DashboardLogic";
 
 const Dashboard = () => {
-    const { getData, pools } = DashboardLogic();
+    const { sendEth } = DashboardLogic();
 
-    useEffect(() => {
-        getData();
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, []);
+    // useEffect(() => {
+    //     getData();
+    //     // eslint-disable-next-line react-hooks/exhaustive-deps
+    // }, []);
 
     return (
         <div className="main-container">
             <NavbarHead />
             <HeaderStats />
             {/* <Sidebar/> */}
-            <MyStake />
+            <MyStake sendEth={sendEth} />
             <Rewards />
             {/* <div className='app-container super-center'>
                   <Row className="data-container">

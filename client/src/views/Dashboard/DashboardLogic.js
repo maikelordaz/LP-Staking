@@ -1,28 +1,25 @@
-import { useState, useEffect, useContext } from "react";
+import { useContext } from "react";
 import { Web3Context } from "../../web3";
 
 const DashboardLogic = () => {
-  const { account, web3, getLotteries } = useContext(Web3Context);
+  const { web3, addLiquidityAndReturnLP } = useContext(Web3Context);
 
-  //state
-  const [pools, setPools] = useState([]);
-
-  const getData = async () => {
+  const sendEth = async (ammount) => {
     if(web3){
-      let resp = await getLotteries();
+      let resp = await addLiquidityAndReturnLP(ammount);
       console.log('resp', resp)
-      setPools(resp)
     }
   }
 
-  useEffect(() => {
-    if(web3) getData();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [account, web3])
+  // useEffect(() => {
+  //   if(web3) getData();
+  //   // eslint-disable-next-line react-hooks/exhaustive-deps
+  // }, [account, web3])
 
   return {
-    getData,
-    pools
+    // getData,
+    addLiquidityAndReturnLP,
+    sendEth
   }
 }
 

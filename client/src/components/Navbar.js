@@ -1,20 +1,19 @@
-import React, { useState, useEffect, useContext } from "react";
-import { Row, Col, Button, Navbar, Container, Nav } from "react-bootstrap";
-import { Link } from 'react-router-dom';
+import React, { useContext } from "react";
+import { Button, Navbar, Container, Nav } from "react-bootstrap";
 
 import { Web3Context } from "../web3";
 
 export default function NavbarHead(props) {
-  const { connectWeb3, account, logout, isOwner, lotteryToWaitingPhase, requestWinnerToBePicked } = useContext(Web3Context);
+  const { connectWeb3, account, logout} = useContext(Web3Context);
   
-  const [auth, setAuth] = useState(false);
+  // const [auth, setAuth] = useState(false);
 
-  useEffect(() => {
-    isOwner().then(resp => {
-      setAuth(resp)
-    });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [account])
+  // useEffect(() => {
+  //   isOwner().then(resp => {
+  //     setAuth(resp)
+  //   });
+  //   // eslint-disable-next-line react-hooks/exhaustive-deps
+  // }, [account])
 
   return (
     <Navbar>
