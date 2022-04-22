@@ -9,35 +9,26 @@ contract RewardToken is ERC20Upgradeable, AccessControlUpgradeable {
     bytes32 public constant ADMIN_ROLE = keccak256("ADMIN_ROLE");
 
     /// VARIABLES
-    uint cost;
     address recipientAddress;
-    /**
-     *  @notice Mapping used for store the URI of every token
-     */
-    mapping(uint => string) public tokenURI;
 
     /// FUNCTIONS
     /**
      *  @notice Constructor function that initialice the name and symbol of the token
      */
-    function initialize(uint256 _supply) public initializer {
+    function initialize() public initializer {
         __ERC20_init('RewardToken', 'RT');
         __AccessControl_init();
         _setupRole(ADMIN_ROLE, msg.sender);
-
-        cost = 0.001 ether;
+        _setRoleAdmin(ADMIN_ROLE, ADMIN_ROLE);
         recipientAddress = msg.sender;
-        
-        _mint(msg.sender, _supply);
     }
 
     /**
-     *  @notice Function that allows mint the token
-     *  @param _mintAmount is the amount of tokens to be minted
+     *  @notice Function that allows the admin mint the token
+     *  @param amount is the amount of tokens to be minted
      */
-    function mint(uint _mintAmount) payable public {
-        require(msg.value >= cost * _mintAmount, "Insufficient funds!");
-        _mint(msg.sender, _mintAmount);
+    function mint(address to, uint amount) public onlyRole(ADMIN_ROLE) {
+        _mint(to, amount);
     }
 
     /**
@@ -49,10 +40,17 @@ contract RewardToken is ERC20Upgradeable, AccessControlUpgradeable {
     }
 
     /**
-     *  @notice Function that allow the owner to withdraw all the funds
+     *  @notice Function that allow the admin to withdraw all the funds
      */
     function withdraw() public onlyRole(ADMIN_ROLE) {
         (bool success, ) = recipientAddress.call{value: address(this).balance}("");
         require(success);
+    }
+
+    /**
+     *  @notice Function that allow the admin to set other admins
+     */
+    function grantAdminRole(address to) external onlyRole(ADMIN_ROLE) {
+        grantRole(ADMIN_ROLE, to);
     }
 }

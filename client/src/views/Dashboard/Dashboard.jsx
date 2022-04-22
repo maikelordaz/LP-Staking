@@ -10,44 +10,41 @@ import DashboardLogic from "./DashboardLogic";
 const Dashboard = () => {
     const {
         sendEth,
+        claimRewards,
+        stakeLP,
+        withdraw,
         rewards,
-        updateTime,
-        rewardTokenStored,
         tSupply,
-        rewardPerTokenPaid,
         rRate,
-        bal,
-        getBalances
+        bal
     } = DashboardLogic();
 
-    // useEffect(() => {
-    //     getData();
-    //     // eslint-disable-next-line react-hooks/exhaustive-deps
-    // }, []);
-
     return (
-        <div className="main-container">
+        <div className = "main-container">
             <NavbarHead />
-            <HeaderStats bal={bal} tSupply={tSupply} rewards={rewards} />
+
+            <HeaderStats
+                bal = {bal}
+                tSupply = {tSupply}
+                rewards = {rewards}
+            />
+
             {/* <Sidebar/> */}
             <MyStake
-                sendEth={sendEth}
-                rewardTokenStored={rewardTokenStored}
-                rRate={rRate}
+                sendEth = {sendEth}
+                stakeLP = {stakeLP}
+                withdraw = {withdraw}
+                bal = {bal}
+                totalStaked = {'--'}
+                totalAdded = {'--'}
             />
+
             <Rewards
-                updateTime={updateTime}
-                rewardPerTokenPaid={rewardPerTokenPaid}
+                claimRewards = {claimRewards}
+                rewards = {rewards}
+                totalRewards = {'--'}
+                rRate = {rRate}
             />
-            {/* <div className='app-container super-center'>
-                  <Row className="data-container">
-                    {pools?.map((lottery, index) => (
-                      <Col sm={6} key={index}>
-                        <PoolCard lottery={lottery}/>
-                      </Col>
-                    ))}
-                  </Row>
-                </div> */}
         </div>
     );
 };

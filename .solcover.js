@@ -1,3 +1,3 @@
 module.exports = {
-    skipFiles: ["RewardToken.sol"]
+    skipFiles: ["RewardToken.sol", "interfaces/IERC20Upgradeable.sol"]
 };

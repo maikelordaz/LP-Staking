@@ -19,7 +19,7 @@ module.exports = async ({ getNamedAccounts, deployments }) => {
                     //     '0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D',
                     //     '0x5C69bEe701ef814a2B6a3EDD4B1652CB9cc5aA6f',
                     //     '0xc7AD46e0b8a400Bb3C915120d284AafbA8fc4735',
-                    //     '0x8B22F85d0c844Cf793690F6D9DFE9F11Ddb35449 ',
+                    //     '0x8B22F85d0c844Cf793690F6D9DFE9F11Ddb35449',
                     //     rewardToken.address
                     // ]
                     // Address from mainnet

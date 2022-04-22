@@ -32,23 +32,10 @@ contract OptimalSwap is Initializable {
 /// EVENTS 
 
     event Log(string message, uint value);
+    event ETHAdded(address account, uint value);
 
 /// FUNCTIONS
-    function __OptimalSwap_init(
-        address _ROUTER,
-        address _FACTORY,
-        address _DAI
-    ) 
-        internal
-        onlyInitializing
-    {
-        ROUTER = _ROUTER;
-        router = IUniswapV2Router02(ROUTER);
-        FACTORY = _FACTORY;
-        factory = IUniswapV2Factory(FACTORY);
-        DAI = _DAI;
-        dai = IERC20(DAI); 
-    }
+    function __OptimalSwap_init() internal onlyInitializing {}
     
     /**
     * @notice an auxiliar function to get the square root
@@ -94,6 +81,8 @@ contract OptimalSwap is Initializable {
     */
     function swapAddLiquidityAndReturnLP() external payable {
         swapAndAddLiquidity(msg.value, true);
+
+        emit ETHAdded(msg.sender, msg.value);
     }
 
     /**
@@ -105,6 +94,8 @@ contract OptimalSwap is Initializable {
         uint liquidity = swapAndAddLiquidity(msg.value, false);
 
         stakeLiquidity(liquidity);
+        
+        emit ETHAdded(msg.sender, msg.value);
     }
     
     /**

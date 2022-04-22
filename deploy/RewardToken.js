@@ -11,10 +11,7 @@ module.exports = async ({ getNamedAccounts, deployments }) => {
             owner: deployer,
             execute: {
                 init: {
-                    methodName: "initialize",
-                    args: [
-                        1000000,
-                    ]
+                    methodName: "initialize"
                 },
             },
         },

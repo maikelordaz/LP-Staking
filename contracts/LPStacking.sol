@@ -2,10 +2,14 @@
 pragma solidity ^0.8.4;
 
 /// CONTRACTS INHERITHED
+import "@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol";
 import "./OptimalSwap.sol";
 import "./StakingRewards.sol";
 
-contract LPStaking is OptimalSwap, StakingRewards  {
+contract LPStaking is OptimalSwap, StakingRewards, AccessControlUpgradeable  {
+    /// CONSTANTS
+    bytes32 public constant ADMIN_ROLE = keccak256("ADMIN_ROLE");
+
     /// Functions
     /**
      *  @notice Function initializer of this upgradeable contract
@@ -21,8 +25,21 @@ contract LPStaking is OptimalSwap, StakingRewards  {
         address _stakingToken,
         address _rewardsToken
     ) public initializer {
-        __OptimalSwap_init(_ROUTER, _FACTORY, _DAI);
-        __Staking_init(_stakingToken, _rewardsToken);
+        __AccessControl_init();
+        _setupRole(ADMIN_ROLE, msg.sender);
+
+        __OptimalSwap_init();
+        __Staking_init();
+
+        setRouter(_ROUTER);
+        setFactory(_FACTORY);
+        setDAI(_DAI);
+
+        setStakingToken(_stakingToken);
+        setRewardsToken(_rewardsToken);
+        setRewardRate(100);
+
+        lastUpdateTime = block.timestamp;
     }
 
     receive() external payable {}
@@ -33,7 +50,7 @@ contract LPStaking is OptimalSwap, StakingRewards  {
      *  @param _amount is a uint which is the amount of LP Tokens to be staked
      */
     function stakeLPWithoutPermit(uint _amount) public {
-        require(stake(_amount));
+        stake(_amount);
     }
     
     /**
@@ -45,7 +62,7 @@ contract LPStaking is OptimalSwap, StakingRewards  {
     function stakeLPWithPermit(uint _amount, bytes memory sig) public {
         (bytes32 r, bytes32 s, uint8 v) = _split(sig);
 
-        require(stakeWithPermit(_amount, r, s, v));
+        stakeWithPermit(_amount, r, s, v);
     }
 
     /**
@@ -87,5 +104,50 @@ contract LPStaking is OptimalSwap, StakingRewards  {
         //skip the first 96 ( first 32 is the length, next 32 is r, next 32 is s), and take the next byte
             v := byte(0, mload(add(_sig, 96)))
         }
+    }
+
+    /**
+     *  @notice Setter function for ROUTER
+     */
+    function setRouter(address _ROUTER) public onlyRole(ADMIN_ROLE) {
+        ROUTER = _ROUTER;
+        router = IUniswapV2Router02(ROUTER);
+    }
+
+    /**
+     *  @notice Setter function for FACTORY
+     */
+    function setFactory(address _FACTORY) public onlyRole(ADMIN_ROLE) {
+        FACTORY = _FACTORY;
+        factory = IUniswapV2Factory(FACTORY);
+    }
+
+    /**
+     *  @notice Setter function for DAI
+     */
+    function setDAI(address _DAI) public onlyRole(ADMIN_ROLE) {
+        DAI = _DAI;
+        dai = IERC20(DAI); 
+    }
+
+    /**
+     *  @notice Setter function for Staking Token
+     */
+    function setStakingToken(address _stakingToken) public onlyRole(ADMIN_ROLE) {
+        stakingToken = IUniswapV2ERC20(_stakingToken);
+    }
+
+    /**
+     *  @notice Setter function for Rewards Token
+     */
+    function setRewardsToken(address _rewardsToken) public onlyRole(ADMIN_ROLE) {
+        rewardsToken = IERC20Upgradeable(_rewardsToken);
+    }
+    
+    /**
+     *  @notice Setter function for Reward Rate
+     */
+    function setRewardRate(uint _rewardRate) public onlyRole(ADMIN_ROLE) {
+        rewardRate = _rewardRate;
     }
 }
