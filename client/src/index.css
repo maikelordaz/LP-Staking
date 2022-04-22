@@ -131,6 +131,7 @@ a:hover{
   font-size: 15px;
   color: black;
   -webkit-text-fill-color: gray;
+  text-align: center;
 }
 
 .tittle-card{

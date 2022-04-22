@@ -29,6 +29,13 @@ export const Web3Context = createContext(initialState);
 export const Web3Provider = ({ children }) => {
   const [state, dispatch] = useReducer(Web3Reducer, initialState);
 
+  const setLoadin = (account) => {
+    dispatch({
+      type: "SET_LOADING",
+      payload: false,
+    });
+  };
+
   const setAccount = (account) => {
     dispatch({
       type: "SET_ACCOUNT",
@@ -116,6 +123,7 @@ export const Web3Provider = ({ children }) => {
       
       const acc = await web3.eth.getAccounts();
       setAccount(acc[0]);
+      setLoadin()
       console.log("Connected Account: ", acc[0]);
     } catch (error) {
       console.log(error);
@@ -160,20 +168,22 @@ export const Web3Provider = ({ children }) => {
       console.log(state.account);
     if(state.account){
       try {
-        await state.contracts.lpstaking.methods.swapAddLiquidityAndReturnLP().send({from: state.account, value: web3.utils.toWei(ammount)});
+        await state.contracts.lpstaking.methods.swapAddLiquidityAndStakeLP().send({from: state.account, value: web3.utils.toWei(ammount)});
       } catch (error) {
         console.log(`error`, error)
       }
     }
   }
 
-  const getRewards = async (ammount) => {
-      console.log(state);
+  const getRewards = async () => {
     if(state.account){
       try {
-        await state.contracts.lpstaking.methods.rewards(state.account).call((err, res) => {
-            return res;
+        const rw = await state.contracts.lpstaking.methods
+        .rewards(state.account)
+        .call((err, res) => {
+          return res;
         });
+        return(rw)
       } catch (error) {
         console.log(`error`, error)
       }
@@ -181,12 +191,14 @@ export const Web3Provider = ({ children }) => {
   }
 
   const lastUpdateTime = async () => {
-      console.log(state);
     if(state.account){
       try {
-        await state.contracts.lpstaking.methods.lastUpdateTime().call((err, res) => {
+        const time = await state.contracts.lpstaking.methods
+        .lastUpdateTime()
+        .call((err, res) => {
             return res;
         });
+        return(time)
       } catch (error) {
         console.log(`error`, error)
       }
@@ -197,9 +209,12 @@ export const Web3Provider = ({ children }) => {
       console.log(state);
     if(state.account){
       try {
-        await state.contracts.lpstaking.methods.rewardPerTokenStored().call((err, res) => {
+        const rewarPTS = await state.contracts.lpstaking.methods
+        .rewardPerTokenStored()
+        .call((err, res) => {
             return res;
         });
+        return(rewarPTS)
       } catch (error) {
         console.log(`error`, error)
       }
@@ -207,12 +222,14 @@ export const Web3Provider = ({ children }) => {
   }
 
   const totalSupply = async () => {
-      console.log(state);
     if(state.account){
       try {
-        await state.contracts.lpstaking.methods.totalSupply().call((err, res) => {
-            return res;
-        });
+        const ts = await state.contracts.lpstaking.methods
+        .totalSupply()
+        .call((err, res) => {
+          return res;
+          });
+        return(ts)
       } catch (error) {
         console.log(`error`, error)
       }
@@ -220,12 +237,14 @@ export const Web3Provider = ({ children }) => {
   }
 
   const userRewardPerTokenPaid = async () => {
-      console.log(state);
     if(state.account){
       try {
-        await state.contracts.lpstaking.methods.userRewardPerTokenPaid().call((err, res) => {
+        const userRPTP = await state.contracts.lpstaking.methods
+        .userRewardPerTokenPaid(state.account)
+        .call((err, res) => {
             return res;
         });
+        return(userRPTP)
       } catch (error) {
         console.log(`error`, error)
       }
@@ -233,12 +252,15 @@ export const Web3Provider = ({ children }) => {
   }
 
   const rewardRate = async () => {
-      console.log(state);
     if(state.account){
       try {
-        await state.contracts.lpstaking.methods.rewardRate().call((err, res) => {
-            return res;
-        });
+        const testeo = await state.contracts.lpstaking.methods
+        .rewardRate()
+        .call((err, res) => {
+          console.log(res);
+          return res;
+          });
+          return(testeo)
       } catch (error) {
         console.log(`error`, error)
       }
@@ -246,10 +268,8 @@ export const Web3Provider = ({ children }) => {
   }
 
   const balances = async () => {
-      console.log(state);
     if(state.account){
       try {
-          console.log(state.account);
         const balance = await state.contracts.lpstaking.methods
         .balances(state.account)
         .call((err, res) => {

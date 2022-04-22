@@ -7,7 +7,7 @@ const MyStake = ({sendEth, rewardTokenStored, rRate}) => {
 
   const handleClose = () => setShow(false);
   const handleShow = () => setShow(true);
-
+  console.log('rRate', rRate)
   return (
       <Row className='stats-container border-custom'>
         <Col md={12}>
@@ -30,7 +30,7 @@ const MyStake = ({sendEth, rewardTokenStored, rRate}) => {
         <Col>
           <div className="quantity-stats">
             <div className="tittle-stats">Rewards Rate</div>
-            <div className="tittle-stats">{rRate || "--"}</div>
+            <div className="tittle-stats">{rRate ? rRate.toString() : "--"}</div>
           </div>
         </Col>
         <Col >

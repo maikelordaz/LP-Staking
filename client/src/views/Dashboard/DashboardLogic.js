@@ -2,8 +2,8 @@ import { useContext, useEffect, useState} from "react";
 import { Web3Context } from "../../web3";
 
 const DashboardLogic = () => {
-  const { web3, addLiquidityAndReturnLP, getRewards, lastUpdateTime, rewardPerTokenStored, userRewardPerTokenPaid, rewardRate, balances } = useContext(Web3Context);
-
+  const { web3, addLiquidityAndReturnLP, getRewards, lastUpdateTime, rewardPerTokenStored, userRewardPerTokenPaid, rewardRate, balances, loading, totalSupply } = useContext(Web3Context);
+  
   const [rewards, setRewards] = useState()
   const [updateTime, setUpdateTime] = useState()
   const [rewardTokenStored, setRewardTokenStored] = useState()
@@ -16,6 +16,7 @@ const DashboardLogic = () => {
   const sendEth = async (ammount) => {
     if(web3){
       let resp = await addLiquidityAndReturnLP(ammount);
+      getBalances()
       console.log('resp', resp)
     }
   }
@@ -42,10 +43,9 @@ const DashboardLogic = () => {
   }
   
   const getTotalSupply = async () => {
-    if(web3){
-      let resp = await rewardPerTokenStored();
-      setTSupply(resp)
-    }
+    let resp = await totalSupply();
+    setTSupply(resp)
+    console.log('resp', resp)
   }
 
   const getUserRewardPerTokenPaid = async () => {
@@ -56,22 +56,19 @@ const DashboardLogic = () => {
   }
 
   const getRewardRate = async () => {
-    if(web3){
-      let resp = await rewardRate();
-      setRRate(resp)
-    }
+    let resp = await rewardRate();
+    setRRate(resp)
+    console.log('RRRRRRRR', resp)
   }
 
   const getBalances = async () => {
-    if(web3){
       let resp = await balances();
       setBal(resp)
       console.log('balances', resp)
-    }
   }
 
   useEffect(() => {
-    if(web3){
+    if(web3 && !loading){
         console.log(web3);
       getR();
       getLastUpdateTime();
@@ -82,11 +79,12 @@ const DashboardLogic = () => {
       getBalances();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [web3])
+  }, [web3, loading])
 
   return {
     // getData,
     sendEth,
+    getBalances,
     addLiquidityAndReturnLP,
     rewards,
     updateTime,

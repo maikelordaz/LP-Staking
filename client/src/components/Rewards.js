@@ -36,7 +36,7 @@ const Rewards = ({updateTime, rewardPerTokenPaid}) => {
         </Col>
         <Col>
           <div className="quantity-stats">
-            <div className="tittle-stats">Claimable Rewards</div>
+            <div className="tittle-stats">Reward Per Token Paid</div>
             <div className="tittle-stats">{rewardPerTokenPaid || "--"}</div>
           </div>
         </Col>

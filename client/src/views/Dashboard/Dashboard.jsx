@@ -16,7 +16,8 @@ const Dashboard = () => {
         tSupply,
         rewardPerTokenPaid,
         rRate,
-        bal
+        bal,
+        getBalances
     } = DashboardLogic();
 
     // useEffect(() => {
