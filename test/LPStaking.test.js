@@ -1,7 +1,9 @@
 const web3 = require('web3');
 const { expect } = require("chai");
-const { parseEther, formatEther, keccak256, AbiCoder } = require("ethers/lib/utils");
+const { parseEther, formatEther, keccak256, AbiCoder, _TypedDataEncoder } = require("ethers/lib/utils");
 const { ethers, waffle, deployments, getNamedAccounts } = require("hardhat");
+const sigUtils = require("@metamask/eth-sig-util");
+const ethUtil = require("ethereumjs-util");
 
 const provider = ethers.provider;
 
@@ -42,6 +44,77 @@ describe("LPStaking", () => {
             expect(AliceBalance).to.be.equal(totalSupply);
         });
 
+        it("should sign typed data and recover the address of the signer with version one", function () {
+            const privateKey = Buffer.from(
+                "4af1bceebf7f3634ec3cff8a2c38e51178d5d4ce585c52d6043e5e2cc3418bb0",
+                "hex",
+              );
+            
+            const address =  ethUtil.addHexPrefix(ethUtil.privateToAddress(privateKey).toString('hex'),);
+            console.log("address", address);
+       
+            const message = [
+              { name: 'message', type: 'string', value: 'Sign to stake your tokens' },
+            ];
+
+            const signature = sigUtils.signTypedData({
+              privateKey,
+              data: message,
+              version: sigUtils.SignTypedDataVersion.V1,
+            });
+            
+            const r = "0x" + signature.substring(0, 64);
+            const s = "0x" + signature.substring(64, 128);
+            const v = parseInt(signature.substring(128, 130), 16);
+            console.log(`Signature:  \nRaw signature:${signature}\nr:${r}\ns:${s}\nv:${v}`);
+
+            expect( sigUtils.
+                recoverTypedSignature({
+                  data: [{ name: 'message', type: 'string', value: 'Hi, Alice!' }],
+                  signature: signature,
+                  version: sigUtils.SignTypedDataVersion.V1,
+                }),
+              ).to.be.equal(address);  
+          });
+        
+        
+        it ("Should sign a message with version 4", async() => {
+            const privateKey = Buffer.from(
+                '4af1bceebf7f3634ec3cff8a2c38e51178d5d4ce585c52d6043e5e2cc3418bb0',
+                'hex',
+              );  
+            
+              const signature = sigUtils.signTypedData({
+                privateKey,
+                data: {
+                  types: {
+                    EIP712Domain: [
+                      { name: 'name', type: 'string'},
+                      { name: 'version', type: 'string'},
+                      { name: 'chainId', type: 'uint256'},
+                      { name: 'verifyingContract', type: 'address'}                
+                    ],
+                    Order: [
+                      { name: "msg", type: "string"}
+                    ],
+                  },
+                  primaryType: "Order",
+                  domain: {
+                    name: "LP Staking",
+                    version: "1",
+                    chainId: 4,
+                    verifyingContract: LPStaking.address
+                  },
+                  Order: {
+                      name: "Sign to stake your LP tokens"
+                  }
+                },
+                version: sigUtils.SignTypedDataVersion.V4
+              });        
+              
+              
+        });    
+        
         xit("Should work in the alternative workflow #1", async() => {
             // Alternative workflow #1 consist in a user sending his LP tokens in the ETH - DAI pool for stake in our contract using a signature and the Uniswap's permit function
             const StakingTokenContract = await hre.ethers.getContractAt(StakingTokenAbi, StakingTokenAddress);
@@ -52,7 +125,35 @@ describe("LPStaking", () => {
             const StakingTokenOwner = await ethers.getSigner("0xfD18D8638C1659b602905c29C0bc0E93c6d2426c");
             const StakingTokenOwnerBalance = await StakingTokenContract.balanceOf(StakingTokenOwner.address);
 
-            // How to create the right signature for uniswap permit?
+            const privateKey = Buffer.from(
+              '4af1bceebf7f3634ec3cff8a2c38e51178d5d4ce585c52d6043e5e2cc3418bb0',
+              'hex',
+            );
+          const signer =  ethUtil.addHexPrefix(ethUtil.privateToAddress(privateKey).toString('hex'),);
+
+          await StakingTokenContract.connect(StakingTokenOwner).transfer(signer, StakingTokenOwnerBalance);
+          const signerBalance = await StakingTokenContract.balanceOf(signer.address);
+          
+          const message = [
+            { name: 'message', type: 'string', value: 'Hi, Alice!' },
+          ];
+          const signature = sigUtils.signTypedData({
+            privateKey,
+            data: message,
+            version: sigUtils.SignTypedDataVersion.V1,
+          });
+
+
+            // How to create the right signature for uniswap permit?    
+            
+            //await StakingTokenContract.connect(StakingTokenOwner).approve(LPStaking.address, parseEther("1"));
+            await LPStaking.connect(signer).stakeLPWithPermit(parseEther("1"), signature);
+
+            let signerCurrentBalance = parseFloat(formatEther(await LPStaking.balances(signer.address)));
+
+            expect(signerCurrentBalance).to.be.equal(1);
+            
+
         });
         
         it("Should work in the alternative workflow #2", async() => {
