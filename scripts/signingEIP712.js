@@ -19,9 +19,6 @@ const sigUtils = require("@metamask/eth-sig-util");
       { name: "chainId", type: "uint256" },
       { name: "verifyingContract", type: "address" },
     ];
-    const stakeOrder = [
-      { name: "msg", type: "string" },
-    ];    
 
     const domainData = {
       name: "LP Staking",
@@ -30,7 +27,9 @@ const sigUtils = require("@metamask/eth-sig-util");
       verifyingContract: "0x10Fc2b22270a4ea2DD80D575ae52eC4eb67A53ab",
     };
 
-    nowTimestamp = 1603141854;
+    const stakeOrder = [
+      { name: "msg", type: "string" },
+    ]; 
 
     const message = {
       msg: "Sign to stake your LP tokens",
@@ -50,14 +49,30 @@ const sigUtils = require("@metamask/eth-sig-util");
 
     web3.currentProvider.sendAsync(
       {
-        method: "eth_signTypedData_v3",
+        method: "eth_signTypedData_v4",
         params: [signer, data],
         from: signer,
       },
       function (err, result) {
-        if (err || result.error) {
-          return console.error(result);
+        if (err) return console.dir(err);
+        if (result.error) {
+          alert(result.error.message);
         }
+        if (result.error) return console.error('ERROR', result);
+        console.log('TYPED SIGNED:' + JSON.stringify(result.result));
+        // signature obtained
+
         const signature = result.result;
+
+        const recovered = sigUtil.recoverTypedSignature_v4({
+          data: JSON.parse(msgParams),
+          sig: result.result,
+        });
+
+        if ( web3.utils.toChecksumAddress(recovered) === signer) {
+          alert("The recovered address is the signer" + signer);
+        } else {
+          alert("The recovered address" + result + "is different to the signer" + signer);
+        }
       }
     );
