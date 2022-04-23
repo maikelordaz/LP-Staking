@@ -27,7 +27,7 @@ const HeaderStats = ({bal, tSupply, rewards}) => {
             <Col className="super-center" >
                 <div className="quantity-stats">
                     <div className="super-center">
-                        {rewards ? (rewards / 1000000000000000000).toFixed(3) : "--"}
+                        {rewards ? rewards : "--"}
                     </div>
 
                     <div className="tittle-stats">Rewards</div>

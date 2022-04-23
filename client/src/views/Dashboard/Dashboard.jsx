@@ -16,34 +16,39 @@ const Dashboard = () => {
         rewards,
         tSupply,
         rRate,
-        bal
+        bal,
+        loadingApp,
+        rewardClaimed,
+        rewardClaimedGlobal,
+        myETHAdded,
+        myLPStaking
     } = DashboardLogic();
 
     return (
-        <div className = "main-container">
+        <div className="main-container">
             <NavbarHead />
 
-            <HeaderStats
-                bal = {bal}
-                tSupply = {tSupply}
-                rewards = {rewards}
-            />
+            <HeaderStats bal={bal} tSupply={tSupply} rewards={rewards} />
 
             {/* <Sidebar/> */}
             <MyStake
-                sendEth = {sendEth}
-                stakeLP = {stakeLP}
-                withdraw = {withdraw}
-                bal = {bal}
-                totalStaked = {'--'}
-                totalAdded = {'--'}
+                sendEth={sendEth}
+                stakeLP={stakeLP}
+                withdraw={withdraw}
+                bal={bal}
+                totalStaked={myLPStaking}
+                totalAdded={myETHAdded}
+                loading={loadingApp}
             />
 
             <Rewards
-                claimRewards = {claimRewards}
-                rewards = {rewards}
-                totalRewards = {'--'}
-                rRate = {rRate}
+                claimRewards={claimRewards}
+                rewards={rewards}
+                totalRewards={"--"}
+                rRate={rRate}
+                rewardClaimed={rewardClaimed}
+                rewardClaimedGlobal={rewardClaimedGlobal}
+                loading={loadingApp}
             />
         </div>
     );

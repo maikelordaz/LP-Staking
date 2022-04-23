@@ -1,12 +1,15 @@
-import React, {useState} from "react";
-import { Row, Col, Modal, Form, Button } from "react-bootstrap";
-const MyStake = ({sendEth, stakeLP, withdraw, bal, totalStaked, totalAdded}) => {
+import React, {useState, useEffect} from "react";
+import { Row, Col, Modal, Form, Button, Spinner } from "react-bootstrap";
+const MyStake = ({sendEth, stakeLP, withdraw, bal, totalStaked, totalAdded, loading}) => {
     const [showAddLiquidity, setShowAddLiquidity] = useState(false);
     const [showStakeLP, setShowStakeLP] = useState(false);
     const [showWithdraw, setShowWithdraw] = useState(false);
 
     const [eth, setEth] = useState(0);
     const [lp, setLp] = useState(0);
+
+    const [totalETHAdded, setTotalETHAdded] = useState();
+    const [totalLPStaked, setTotalLPStaked] = useState();
 
     const handleCloseAddLiquidity = () => setShowAddLiquidity(false);
     const handleShowAddLiquidity = () => setShowAddLiquidity(true);
@@ -17,6 +20,28 @@ const MyStake = ({sendEth, stakeLP, withdraw, bal, totalStaked, totalAdded}) => 
     const handleCloseWithdraw = () => setShowWithdraw(false);
     const handleShowWithdraw = () => setShowWithdraw(true);
     
+
+    useEffect(() => {
+        if(totalAdded?.[0]){
+            var total = 0;
+            for (var property in totalAdded) {
+                total += parseInt(totalAdded[property].value);
+            }
+            setTotalETHAdded((total / 1000000000000000000))
+            console.log('total', total)
+        }
+    }, [totalAdded])
+    
+    useEffect(() => {
+        if(totalStaked?.[0]){
+            var total = 0;
+            for (var property in totalStaked) {
+                total += parseInt(totalStaked[property].amount);
+            }
+            setTotalLPStaked((total / 1000000000000000000))
+            console.log('total', total)
+        }
+    }, [totalStaked])
     return (
         <Row className='stats-container border-custom'>
             <Col md={12}>
@@ -66,7 +91,7 @@ const MyStake = ({sendEth, stakeLP, withdraw, bal, totalStaked, totalAdded}) => 
                     </div>
 
                     <div className="tittle-stats">
-                        {totalStaked || "--"}
+                        {totalLPStaked || "--"}
                     </div>
                 </div>
             </Col>
@@ -78,7 +103,7 @@ const MyStake = ({sendEth, stakeLP, withdraw, bal, totalStaked, totalAdded}) => 
                     </div>
 
                     <div className="tittle-stats">
-                        {totalAdded || "--"}
+                        {totalETHAdded || "--"}
                     </div>
                 </div>
             </Col>
@@ -98,9 +123,17 @@ const MyStake = ({sendEth, stakeLP, withdraw, bal, totalStaked, totalAdded}) => 
                     </Form>
                     
                     <div className="d-grid gap-2">
-                        <Button variant="primary" size="lg" style={{marginBottom:'1em', width:'100%'}} onClick={()=>sendEth(eth)}>
-                            Send ETH
-                        </Button>
+                        {
+                            !loading ?
+                                <Button variant="primary" size="lg" style={{marginBottom:'1em', width:'100%'}} onClick={()=>sendEth(eth)}>
+                                    Send ETH
+                                </Button>
+                            :
+                                <Button variant="primary" disabled style={{marginBottom:'1em', width:'100%'}}>
+                                    <Spinner as="span" animation="grow" size="sm" role="status" aria-hidden="true"
+                                    />
+                                </Button>
+                        }
                     </div>
                 </Modal.Body>
             </Modal>
@@ -120,9 +153,17 @@ const MyStake = ({sendEth, stakeLP, withdraw, bal, totalStaked, totalAdded}) => 
                     </Form>
                     
                     <div className="d-grid gap-2">
-                        <Button variant="primary" size="lg" style={{marginBottom:'1em', width:'100%'}} onClick={()=>stakeLP(lp)}>
-                            Stake
-                        </Button>
+                        {
+                            !loading ?
+                            <Button variant="primary" size="lg" style={{marginBottom:'1em', width:'100%'}} onClick={()=>stakeLP(parseInt(lp))}>
+                                Stake
+                            </Button>
+                            :
+                            <Button variant="primary" size="lg" disabled style={{marginBottom:'1em', width:'100%'}}>
+                                <Spinner as="span" animation="grow" size="sm" role="status" aria-hidden="true"
+                                />
+                            </Button>
+                        }
                     </div>
                 </Modal.Body>
             </Modal>
@@ -137,14 +178,22 @@ const MyStake = ({sendEth, stakeLP, withdraw, bal, totalStaked, totalAdded}) => 
                 <Modal.Body>
                     <Form>
                         <Form.Group className="mb-3" controlId="formBasicEmail">
-                            <Form.Control type="number" placeholder="0 eth" onChange={(e)=>setLp(e.target.value)}/>
+                            <Form.Control type="number" placeholder="0 lp" onChange={(e)=>setLp(e.target.value)}/>
                         </Form.Group>
                     </Form>
                     
                     <div className="d-grid gap-2">
-                        <Button variant="primary" size="lg" style={{marginBottom:'1em', width:'100%'}} onClick={()=>withdraw(lp)}>
-                        Withdraw
-                        </Button>
+                        {
+                            !loading ? 
+                            <Button variant="primary" size="lg" style={{marginBottom:'1em', width:'100%'}} onClick={()=>withdraw(lp)}>
+                                Withdraw
+                            </Button>
+                            :
+                            <Button size="lg" variant="primary" disabled style={{marginBottom:'1em', width:'100%'}}>
+                                <Spinner as="span" animation="grow" size="sm" role="status" aria-hidden="true"
+                                />
+                            </Button>
+                        }
                     </div>
                 </Modal.Body>
             </Modal>

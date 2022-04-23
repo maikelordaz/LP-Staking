@@ -11,7 +11,7 @@ import Authereum from "authereum";
 
 import LPStaking from '../utils/abi/LPStaking_Implementation.json';
 
-import {CONTRACT_ADDRESS, CURRENT_NETWORK} from './constants';
+import {CONTRACT_ADDRESS, CURRENT_NETWORK, DEPLOY_BLOCK} from './constants';
 
 let web3 = null;
 
@@ -180,7 +180,8 @@ export const Web3Provider = ({ children }) => {
         }
     }
     
-    const claimRewardsContract = async () => {
+    const claimRewardsContract = async (cant) => {
+        console.log('cant', cant)
         if(state.account){
             try {
                 await state.contracts.lpstaking.methods.getReward().send({
@@ -195,8 +196,9 @@ export const Web3Provider = ({ children }) => {
     
     const stakeLPContract = async (amount) => {
         if(state.account){
+            console.log('amount', amount)
             try {
-                await state.contracts.lpstaking.methods.stakeLPWithoutPermit().send({
+                await state.contracts.lpstaking.methods.stakeLPWithoutPermit(amount).send({
                     from: state.account,
                     value: 0
                 });
@@ -209,7 +211,7 @@ export const Web3Provider = ({ children }) => {
     const withdrawContract = async (amount) => {
         if(state.account){
             try {
-                await state.contracts.lpstaking.methods.withdraw().send({
+                await state.contracts.lpstaking.methods.withdraw(amount).send({
                     from: state.account,
                     value: 0
                 });
@@ -283,6 +285,67 @@ export const Web3Provider = ({ children }) => {
         }
     }
 
+    const getEventLPStaked = async () => {
+        if(state.account){
+            let myLPSateked = await state.contracts.lpstaking
+            .getPastEvents('LPStaked', {fromBlock: DEPLOY_BLOCK, toBlock: 'latest'});
+            let events = [];
+            for (const element of myLPSateked) {
+              let x = element.returnValues;
+              x.eventType = "LP Staked"
+                  events.push(x);
+            }
+            console.log('events', events)
+            return events;
+        }
+    }
+
+    const getEventRewardClaimed = async () => {
+        if(state.account){
+            let myRewardClaimed = await state.contracts.lpstaking
+            .getPastEvents('RewardClaimed', {fromBlock: DEPLOY_BLOCK, toBlock: 'latest'});
+            let events = [];
+            for (const element of myRewardClaimed) {
+              let x = element.returnValues;
+              x.eventType = "Reward Claimed"
+              if(x.account === state.account){
+                  events.push(x);
+              }
+            }
+            console.log('events', events)
+            return events;
+        }
+    }
+
+    const getEventRewardClaimedGlobal = async () => {
+        if(state.account){
+            let myRewardClaimed = await state.contracts.lpstaking
+            .getPastEvents('RewardClaimed', {fromBlock: DEPLOY_BLOCK, toBlock: 'latest'});
+            let events = [];
+            for (const element of myRewardClaimed) {
+              let x = element.returnValues;
+              x.eventType = "Reward Global Claimed"
+                  events.push(x);
+            }
+            console.log('events', events)
+            return events;
+        }
+    }
+
+    const getEventETHAdded = async () => {
+        if(state.account){
+            let myETHAdded = await state.contracts.lpstaking
+            .getPastEvents('ETHAdded', {fromBlock: DEPLOY_BLOCK, toBlock: 'latest'});
+            let events = [];
+            for (const element of myETHAdded) {
+              let x = element.returnValues;
+              x.eventType = "ETH added"
+                  events.push(x);
+            }
+            console.log('events', events)
+            return events;
+        }
+    }
     useEffect(() => {
         if(localStorage.getItem("WEB3_CONNECT_CACHED_PROVIDER")){
             connectWeb3();
@@ -306,7 +369,11 @@ export const Web3Provider = ({ children }) => {
                 getRewards,
                 totalSupply,
                 rewardRate,
-                balances
+                balances,
+                getEventRewardClaimed,
+                getEventLPStaked,
+                getEventRewardClaimedGlobal,
+                getEventETHAdded
             }}
         >
             {children}
