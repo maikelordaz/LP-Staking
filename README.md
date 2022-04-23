@@ -19,5 +19,5 @@ Optional: <br/>
 9- You can run the script "verify" for verify the contract in the Rikeby testnet if this contract was deployed there. <br/>
 
 10- Run inside the client folder "yarn && yarn start" <br/>
-11- Netlify site http://lp-staking-ac.netlify.app
+11- Netlify site https://lpstaking-ac.netlify.app/
 <br/>
