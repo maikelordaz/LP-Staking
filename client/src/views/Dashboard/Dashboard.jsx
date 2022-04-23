@@ -21,7 +21,8 @@ const Dashboard = () => {
         rewardClaimed,
         rewardClaimedGlobal,
         myETHAdded,
-        myLPStaking
+        myLPStaking,
+        globalLPStaking
     } = DashboardLogic();
 
     return (
@@ -39,6 +40,7 @@ const Dashboard = () => {
                 totalStaked={myLPStaking}
                 totalAdded={myETHAdded}
                 loading={loadingApp}
+                globalLPStaking={globalLPStaking}
             />
 
             <Rewards

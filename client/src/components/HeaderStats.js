@@ -1,5 +1,6 @@
 import React from "react";
 import { Row, Col } from "react-bootstrap";
+import { ethers } from 'ethers'
 
 const HeaderStats = ({bal, tSupply, rewards}) => {
     return (
@@ -7,7 +8,7 @@ const HeaderStats = ({bal, tSupply, rewards}) => {
             <Col className="super-center border-r">
                 <div className="quantity-stats">
                     <div className="super-center">
-                        {bal ? (bal.balance / 1000000000000000000).toFixed(3) : "--"}
+                        {bal ? parseFloat(ethers.utils.formatEther(bal.balance.toString())).toFixed(4) : "--"}
                     </div>
 
                     <div className="tittle-stats">Balance</div>
@@ -17,7 +18,7 @@ const HeaderStats = ({bal, tSupply, rewards}) => {
             <Col className="super-center border-r">
                 <div className="quantity-stats">
                     <div className="super-center">
-                        {tSupply ? (tSupply / 1000000000000000000).toFixed(3) : "--"}
+                        {tSupply ? parseFloat(ethers.utils.formatEther(tSupply.toString())).toFixed(4) : "--"}
                     </div>
 
                     <div className="tittle-stats">Total Supply</div>
@@ -27,7 +28,8 @@ const HeaderStats = ({bal, tSupply, rewards}) => {
             <Col className="super-center" >
                 <div className="quantity-stats">
                     <div className="super-center">
-                        {rewards ? rewards : "--"}
+                        {/* {rewards ? rewards : "--"} */}
+                        {rewards ? parseFloat(ethers.utils.formatEther(rewards.toString())).toFixed(4) : "--"}
                     </div>
 
                     <div className="tittle-stats">Rewards</div>

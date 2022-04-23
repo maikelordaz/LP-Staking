@@ -1,12 +1,12 @@
 import React, {useState, useEffect} from "react";
-import { Row, Col, Button, Modal, Form, Table, Spinner } from "react-bootstrap";
+import { Row, Col, Button, Modal, Table, Spinner } from "react-bootstrap";
+import { ethers } from 'ethers'
 
 const Rewards = ({claimRewards, rewards, rRate, rewardClaimed, rewardClaimedGlobal, loading}) => {
     const [show, setShow] = useState(false);
     const [showHistory, setShowHistory] = useState(false);
     const [showGlobalHistory, setShowGlobalHistory] = useState(false);
 
-    const [cantToClaim, setCantToClaim] = useState();
 
     const [totalClaimed, setTotalClaimed] = useState();
 
@@ -28,7 +28,6 @@ const Rewards = ({claimRewards, rewards, rRate, rewardClaimed, rewardClaimedGlob
                 total += parseInt(rewardClaimed[property].amount);
             }
             setTotalClaimed(total)
-            console.log('total', total)
         }
     }, [rewardClaimed])
     
@@ -57,7 +56,7 @@ const Rewards = ({claimRewards, rewards, rRate, rewardClaimed, rewardClaimedGlob
                     </div>
 
                     <div className="tittle-stats">
-                        {rewards || "--"}
+                        {rewards ? ethers.utils.formatEther(rewards.toString()) : "--"}
                     </div>
                 </div>
             </Col>
@@ -69,7 +68,7 @@ const Rewards = ({claimRewards, rewards, rRate, rewardClaimed, rewardClaimedGlob
                     </div>
 
                     <div className="tittle-stats">
-                        {totalClaimed || "--"}
+                        {totalClaimed? ethers.utils.formatEther(totalClaimed.toString()) : "--"}
                     </div>
                 </div>
             </Col>
@@ -80,7 +79,7 @@ const Rewards = ({claimRewards, rewards, rRate, rewardClaimed, rewardClaimedGlob
                     </div>
 
                     <div className="tittle-stats">
-                        {rewardClaimed?.[0] ? rewardClaimed[rewardClaimed.length - 1].amount : "--"}
+                        {rewardClaimed?.[0] ? ethers.utils.formatEther(rewardClaimed[rewardClaimed.length - 1].amount.toString()) : "--"}
                     </div>
                 </div>
             </Col>
@@ -117,18 +116,10 @@ const Rewards = ({claimRewards, rewards, rRate, rewardClaimed, rewardClaimedGlob
                     </Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
-                    <Form>
-                        <Form.Group className="mb-3" controlId="formBasicEmail">
-                            <Form.Label className="tittle-card">
-                                Claimable Rewards
-                            </Form.Label>
-                            <Form.Control type="number" placeholder="0 tokens" onChange={(e)=>setCantToClaim(e.target.value)}/>
-                        </Form.Group>
-                    </Form>
                     <div className="d-grid gap-2">
                         {
                             !loading ?
-                                <Button variant="primary" size="lg" style={{marginBottom:'1em', width:'100%'}} onClick={()=>claimRewards(cantToClaim)}>
+                                <Button variant="primary" size="lg" style={{marginBottom:'1em', width:'100%'}} onClick={()=>claimRewards()}>
                                     Claim Rewards
                                 </Button>
                             :
@@ -170,7 +161,7 @@ const Rewards = ({claimRewards, rewards, rRate, rewardClaimed, rewardClaimedGlob
                                                 item.account.substring(38, 42)
                                             }
                                         </td>
-                                        <td>{item.amount}</td>
+                                        <td>{ethers.utils.formatEther(item.amount.toString())}</td>
                                     </tr>
                                     )
                                 })
@@ -209,7 +200,7 @@ const Rewards = ({claimRewards, rewards, rRate, rewardClaimed, rewardClaimedGlob
                                                 item.account.substring(38, 42)
                                             }
                                         </td>
-                                        <td>{item.amount}</td>
+                                        <td>{ethers.utils.formatEther(item.amount.toString())}</td>
                                     </tr>
                                     )
                                 })

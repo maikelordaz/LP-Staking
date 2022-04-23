@@ -1,9 +1,11 @@
 import { useContext, useEffect, useState} from "react";
 import { Web3Context } from "../../web3";
+import { ethers } from 'ethers'
 
 const DashboardLogic = () => {
     const {
         web3,
+        account,
         addLiquidityAndReturnLP,
         claimRewardsContract,
         stakeLPContract,
@@ -16,7 +18,8 @@ const DashboardLogic = () => {
         getEventRewardClaimed,
         getEventRewardClaimedGlobal,
         getEventLPStaked,
-        getEventETHAdded
+        getEventLPStakedGlobal,
+        getEventETHAdded,
     } = useContext(Web3Context);
     
     const [rewards, setRewards] = useState();
@@ -29,6 +32,7 @@ const DashboardLogic = () => {
     const [rewardClaimedGlobal, setRewadClaimedGlobal] = useState();
     const [myETHAdded, setMyETHAdded] = useState();
     const [myLPStaking, setMyLPStaking] = useState();
+    const [globalLPStaking, setGlobalLPStaking] = useState();
 
     //events
     const [loadingApp, setLoadingApp] = useState(false);
@@ -38,7 +42,7 @@ const DashboardLogic = () => {
         setLoadingApp(true)
         if(web3){
             let resp = await addLiquidityAndReturnLP(ammount);
-            getBalances()
+            reGet()
             setLoadingApp(false)
             console.log('resp', resp)
         }
@@ -55,8 +59,9 @@ const DashboardLogic = () => {
     
     const stakeLP = async (lp) => {
         setLoadingApp(true)
+        let send = ethers.utils.parseUnits(lp)
         if(web3){
-            await stakeLPContract(lp);
+            await stakeLPContract(send._hex);
             reGet()
             setLoadingApp(false)
         }
@@ -64,8 +69,9 @@ const DashboardLogic = () => {
     
     const withdraw = async (amount) => {
         setLoadingApp(true)
+        let send = ethers.utils.parseUnits(amount)
         if(web3){
-            await withdrawContract(amount);
+            await withdrawContract(send._hex);
             reGet()
             setLoadingApp(false)
         }
@@ -97,27 +103,27 @@ const DashboardLogic = () => {
         const getRewardClaimed = async () => {
             let resp = await getEventRewardClaimed();
             setRewadClaimed(resp)
-            console.log('My R C', resp)
         }
 
         const getRewardClaimedGlobal = async () => {
             let resp = await getEventRewardClaimedGlobal();
             setRewadClaimedGlobal(resp)
-            console.log('global R C', resp)
         }
 
         const getMyETHAdded = async () => {
             let resp = await getEventETHAdded();
             setMyETHAdded(resp)
-            console.log('eth added', resp)
         }
 
         const getMyLPStaking = async () => {
             let resp = await getEventLPStaked();
             setMyLPStaking(resp)
-            console.log('LP Staking', resp)
         }
 
+        const getMyLPStakingGlobal = async () => {
+            let resp = await getEventLPStakedGlobal();
+            setGlobalLPStaking(resp)
+        }
     //get events
 
     const reGet = () =>{
@@ -130,6 +136,7 @@ const DashboardLogic = () => {
             getRewardClaimedGlobal();
             getMyETHAdded();
             getMyLPStaking();
+            getMyLPStakingGlobal();
         }
     }
     useEffect(() => {
@@ -142,9 +149,10 @@ const DashboardLogic = () => {
             getRewardClaimedGlobal();
             getMyETHAdded();
             getMyLPStaking();
+            getMyLPStakingGlobal();
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [web3, loading])
+    }, [web3, loading, account])
 
     return {
         sendEth,
@@ -160,7 +168,8 @@ const DashboardLogic = () => {
         rewardClaimed,
         rewardClaimedGlobal,
         myETHAdded,
-        myLPStaking
+        myLPStaking,
+        globalLPStaking
     }
 }
 

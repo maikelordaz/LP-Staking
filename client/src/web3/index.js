@@ -181,7 +181,6 @@ export const Web3Provider = ({ children }) => {
     }
     
     const claimRewardsContract = async (cant) => {
-        console.log('cant', cant)
         if(state.account){
             try {
                 await state.contracts.lpstaking.methods.getReward().send({
@@ -196,7 +195,6 @@ export const Web3Provider = ({ children }) => {
     
     const stakeLPContract = async (amount) => {
         if(state.account){
-            console.log('amount', amount)
             try {
                 await state.contracts.lpstaking.methods.stakeLPWithoutPermit(amount).send({
                     from: state.account,
@@ -293,9 +291,24 @@ export const Web3Provider = ({ children }) => {
             for (const element of myLPSateked) {
               let x = element.returnValues;
               x.eventType = "LP Staked"
+              if(x.account === state.account){
+                  events.push(x);
+              }
+            }
+            return events;
+        }
+    }
+
+    const getEventLPStakedGlobal = async () => {
+        if(state.account){
+            let myLPSateked = await state.contracts.lpstaking
+            .getPastEvents('LPStaked', {fromBlock: DEPLOY_BLOCK, toBlock: 'latest'});
+            let events = [];
+            for (const element of myLPSateked) {
+              let x = element.returnValues;
+              x.eventType = "LP Staked Global"
                   events.push(x);
             }
-            console.log('events', events)
             return events;
         }
     }
@@ -312,7 +325,6 @@ export const Web3Provider = ({ children }) => {
                   events.push(x);
               }
             }
-            console.log('events', events)
             return events;
         }
     }
@@ -327,7 +339,6 @@ export const Web3Provider = ({ children }) => {
               x.eventType = "Reward Global Claimed"
                   events.push(x);
             }
-            console.log('events', events)
             return events;
         }
     }
@@ -340,9 +351,10 @@ export const Web3Provider = ({ children }) => {
             for (const element of myETHAdded) {
               let x = element.returnValues;
               x.eventType = "ETH added"
+              if(x.account === state.account){
                   events.push(x);
+              }
             }
-            console.log('events', events)
             return events;
         }
     }
@@ -373,7 +385,8 @@ export const Web3Provider = ({ children }) => {
                 getEventRewardClaimed,
                 getEventLPStaked,
                 getEventRewardClaimedGlobal,
-                getEventETHAdded
+                getEventETHAdded,
+                getEventLPStakedGlobal
             }}
         >
             {children}

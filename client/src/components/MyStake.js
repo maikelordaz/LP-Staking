@@ -1,9 +1,14 @@
 import React, {useState, useEffect} from "react";
-import { Row, Col, Modal, Form, Button, Spinner } from "react-bootstrap";
-const MyStake = ({sendEth, stakeLP, withdraw, bal, totalStaked, totalAdded, loading}) => {
+import { Row, Col, Modal, Form, Button, Spinner, Table } from "react-bootstrap";
+import { ethers } from 'ethers'
+
+const MyStake = ({sendEth, stakeLP, withdraw, bal, totalStaked, totalAdded, globalLPStaking, loading}) => {
     const [showAddLiquidity, setShowAddLiquidity] = useState(false);
     const [showStakeLP, setShowStakeLP] = useState(false);
     const [showWithdraw, setShowWithdraw] = useState(false);
+
+    const [showHistory, setShowHistory] = useState(false);
+    const [showGlobalHistory, setShowGlobalHistory] = useState(false);
 
     const [eth, setEth] = useState(0);
     const [lp, setLp] = useState(0);
@@ -20,15 +25,20 @@ const MyStake = ({sendEth, stakeLP, withdraw, bal, totalStaked, totalAdded, load
     const handleCloseWithdraw = () => setShowWithdraw(false);
     const handleShowWithdraw = () => setShowWithdraw(true);
     
+    const handleShowHistory = () => setShowHistory(true)
+    const handleShowHistoryClose = () => setShowHistory(false)
 
+    const handleShowHistoryGlobal = () => setShowGlobalHistory(true)
+    const handleShowHistoryGlobalClose = () => setShowGlobalHistory(false)
+    
     useEffect(() => {
         if(totalAdded?.[0]){
             var total = 0;
             for (var property in totalAdded) {
-                total += parseInt(totalAdded[property].value);
+                total += parseFloat(ethers.utils.formatEther(totalAdded[property].value.toString()));
+                // ethers.utils.formatEther(bal.balance.toString())
             }
-            setTotalETHAdded((total / 1000000000000000000))
-            console.log('total', total)
+            setTotalETHAdded(total)
         }
     }, [totalAdded])
     
@@ -36,10 +46,10 @@ const MyStake = ({sendEth, stakeLP, withdraw, bal, totalStaked, totalAdded, load
         if(totalStaked?.[0]){
             var total = 0;
             for (var property in totalStaked) {
-                total += parseInt(totalStaked[property].amount);
+                total += parseFloat(ethers.utils.formatEther(totalStaked[property].amount.toString()));
+
             }
-            setTotalLPStaked((total / 1000000000000000000))
-            console.log('total', total)
+            setTotalLPStaked(total)
         }
     }, [totalStaked])
     return (
@@ -79,7 +89,8 @@ const MyStake = ({sendEth, stakeLP, withdraw, bal, totalStaked, totalAdded, load
                     </div>
 
                     <div className="tittle-stats">
-                        {bal ? (bal.balance / 1000000000000000000).toFixed(3) : "--"}
+                        {/* {bal ? (bal.balance / 1000000000000000000).toFixed(3) : "--"} */}
+                        {bal ? ethers.utils.formatEther(bal.balance.toString()) : "--"}
                     </div>
                 </div>
             </Col>
@@ -107,7 +118,20 @@ const MyStake = ({sendEth, stakeLP, withdraw, bal, totalStaked, totalAdded, load
                     </div>
                 </div>
             </Col>
-
+            <Col md={12} style={{marginTop:'2em'}}>    
+                <Row>
+                    <Col>
+                        <Button variant="primary" size="lg" style={{marginBottom:'1em', width:'100%'}} onClick={handleShowHistory}>
+                                View My History
+                        </Button>
+                    </Col>
+                    <Col>
+                        <Button variant="primary" size="lg" style={{marginBottom:'1em', width:'100%'}} onClick={handleShowHistoryGlobal}>
+                                View Global History
+                        </Button>
+                    </Col>
+                </Row>
+            </Col>
             <Modal show={showAddLiquidity} onHide={handleCloseAddLiquidity}>
                 <Modal.Header closeButton>
                     <Modal.Title className="quantity-stats">
@@ -144,18 +168,16 @@ const MyStake = ({sendEth, stakeLP, withdraw, bal, totalStaked, totalAdded, load
                         Stake LP
                     </Modal.Title>
                 </Modal.Header>
-
                 <Modal.Body>
                     <Form>
                         <Form.Group className="mb-3" controlId="formBasicEmail">
                             <Form.Control type="number" placeholder="0 LP" onChange={(e)=>setLp(e.target.value)}/>
                         </Form.Group>
                     </Form>
-                    
                     <div className="d-grid gap-2">
                         {
                             !loading ?
-                            <Button variant="primary" size="lg" style={{marginBottom:'1em', width:'100%'}} onClick={()=>stakeLP(parseInt(lp))}>
+                            <Button variant="primary" size="lg" style={{marginBottom:'1em', width:'100%'}} onClick={()=>stakeLP(lp)}>
                                 Stake
                             </Button>
                             :
@@ -174,7 +196,6 @@ const MyStake = ({sendEth, stakeLP, withdraw, bal, totalStaked, totalAdded, load
                         Withdraw LP
                     </Modal.Title>
                 </Modal.Header>
-
                 <Modal.Body>
                     <Form>
                         <Form.Group className="mb-3" controlId="formBasicEmail">
@@ -195,6 +216,85 @@ const MyStake = ({sendEth, stakeLP, withdraw, bal, totalStaked, totalAdded, load
                             </Button>
                         }
                     </div>
+                </Modal.Body>
+            </Modal>
+
+
+            <Modal show={showHistory} onHide={handleShowHistoryClose}>
+                <Modal.Header closeButton>
+                    <Modal.Title className="quantity-stats">
+                        My Stake History
+                    </Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                    <Table responsive>
+                        <thead>
+                            <tr>
+                            <th>#</th>
+                            <th>Account</th>
+                            <th>Amount</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {
+                                totalStaked?.[0] &&
+                                totalStaked.map((item, key)=>{
+                                    return(
+                                    <tr key={key}>
+                                        <td>{key}</td>
+                                        <td>
+                                            {
+                                                item.account.substring(0, 4) +
+                                                "..." +
+                                                item.account.substring(38, 42)
+                                            }
+                                        </td>
+                                        <td>{ethers.utils.formatEther(item.amount.toString())}</td>
+                                    </tr>
+                                    )
+                                })
+                            }
+                        </tbody>
+                        </Table>
+                </Modal.Body>
+            </Modal>
+
+            <Modal show={showGlobalHistory} onHide={handleShowHistoryGlobalClose}>
+                <Modal.Header closeButton>
+                    <Modal.Title className="quantity-stats">
+                        Global Stake History
+                    </Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                    <Table responsive>
+                        <thead>
+                            <tr>
+                            <th>#</th>
+                            <th>Account</th>
+                            <th>Amount</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {
+                                globalLPStaking?.[0] &&
+                                globalLPStaking.map((item, key)=>{
+                                    return(
+                                    <tr key={key}>
+                                        <td>{key}</td>
+                                        <td>
+                                            {
+                                                item.account.substring(0, 4) +
+                                                "..." +
+                                                item.account.substring(38, 42)
+                                            }
+                                        </td>
+                                        <td>{ethers.utils.formatEther(item.amount.toString())}</td>
+                                    </tr>
+                                    )
+                                })
+                            }
+                        </tbody>
+                        </Table>
                 </Modal.Body>
             </Modal>
         </Row>
