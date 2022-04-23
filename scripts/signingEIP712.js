@@ -1,4 +1,4 @@
-const Web3 = require("web3");
+const web3 = require("web3");
 const sigUtils = require("@metamask/eth-sig-util");
 
   let from;
