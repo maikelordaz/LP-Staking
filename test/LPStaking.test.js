@@ -1,13 +1,15 @@
 const web3 = require('web3');
 const { expect } = require("chai");
-const { parseEther, formatEther, keccak256, AbiCoder, _TypedDataEncoder } = require("ethers/lib/utils");
+const { parseEther, formatEther, keccak256, AbiCoder, _TypedDataEncoder, defaultAbiCoder, toUtf8Bytes, solidityPack } = require("ethers/lib/utils");
 const { ethers, waffle, deployments, getNamedAccounts } = require("hardhat");
 const sigUtils = require("@metamask/eth-sig-util");
-const ethUtil = require("ethereumjs-util");
+const { ethUtil, ecsign } = require("ethereumjs-util");
+const { MockProvider } = require('ethereum-waffle');
 
 const provider = ethers.provider;
 
-const StakingTokenAddress = "0xA478c2975Ab1Ea89e8196811F51A7B7Ade33eB11";
+//const StakingTokenAddress = "0x8B22F85d0c844Cf793690F6D9DFE9F11Ddb35449"; // rinkeby
+const StakingTokenAddress = "0xA478c2975Ab1Ea89e8196811F51A7B7Ade33eB11"; // mainnet
 const StakingTokenAbi = [{"inputs":[],"payable":false,"stateMutability":"nonpayable","type":"constructor"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"owner","type":"address"},{"indexed":true,"internalType":"address","name":"spender","type":"address"},{"indexed":false,"internalType":"uint256","name":"value","type":"uint256"}],"name":"Approval","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"sender","type":"address"},{"indexed":false,"internalType":"uint256","name":"amount0","type":"uint256"},{"indexed":false,"internalType":"uint256","name":"amount1","type":"uint256"},{"indexed":true,"internalType":"address","name":"to","type":"address"}],"name":"Burn","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"sender","type":"address"},{"indexed":false,"internalType":"uint256","name":"amount0","type":"uint256"},{"indexed":false,"internalType":"uint256","name":"amount1","type":"uint256"}],"name":"Mint","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"sender","type":"address"},{"indexed":false,"internalType":"uint256","name":"amount0In","type":"uint256"},{"indexed":false,"internalType":"uint256","name":"amount1In","type":"uint256"},{"indexed":false,"internalType":"uint256","name":"amount0Out","type":"uint256"},{"indexed":false,"internalType":"uint256","name":"amount1Out","type":"uint256"},{"indexed":true,"internalType":"address","name":"to","type":"address"}],"name":"Swap","type":"event"},{"anonymous":false,"inputs":[{"indexed":false,"internalType":"uint112","name":"reserve0","type":"uint112"},{"indexed":false,"internalType":"uint112","name":"reserve1","type":"uint112"}],"name":"Sync","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"from","type":"address"},{"indexed":true,"internalType":"address","name":"to","type":"address"},{"indexed":false,"internalType":"uint256","name":"value","type":"uint256"}],"name":"Transfer","type":"event"},{"constant":true,"inputs":[],"name":"DOMAIN_SEPARATOR","outputs":[{"internalType":"bytes32","name":"","type":"bytes32"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[],"name":"MINIMUM_LIQUIDITY","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[],"name":"PERMIT_TYPEHASH","outputs":[{"internalType":"bytes32","name":"","type":"bytes32"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[{"internalType":"address","name":"","type":"address"},{"internalType":"address","name":"","type":"address"}],"name":"allowance","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":false,"inputs":[{"internalType":"address","name":"spender","type":"address"},{"internalType":"uint256","name":"value","type":"uint256"}],"name":"approve","outputs":[{"internalType":"bool","name":"","type":"bool"}],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":true,"inputs":[{"internalType":"address","name":"","type":"address"}],"name":"balanceOf","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":false,"inputs":[{"internalType":"address","name":"to","type":"address"}],"name":"burn","outputs":[{"internalType":"uint256","name":"amount0","type":"uint256"},{"internalType":"uint256","name":"amount1","type":"uint256"}],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":true,"inputs":[],"name":"decimals","outputs":[{"internalType":"uint8","name":"","type":"uint8"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[],"name":"factory","outputs":[{"internalType":"address","name":"","type":"address"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[],"name":"getReserves","outputs":[{"internalType":"uint112","name":"_reserve0","type":"uint112"},{"internalType":"uint112","name":"_reserve1","type":"uint112"},{"internalType":"uint32","name":"_blockTimestampLast","type":"uint32"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":false,"inputs":[{"internalType":"address","name":"_token0","type":"address"},{"internalType":"address","name":"_token1","type":"address"}],"name":"initialize","outputs":[],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":true,"inputs":[],"name":"kLast","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":false,"inputs":[{"internalType":"address","name":"to","type":"address"}],"name":"mint","outputs":[{"internalType":"uint256","name":"liquidity","type":"uint256"}],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":true,"inputs":[],"name":"name","outputs":[{"internalType":"string","name":"","type":"string"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[{"internalType":"address","name":"","type":"address"}],"name":"nonces","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":false,"inputs":[{"internalType":"address","name":"owner","type":"address"},{"internalType":"address","name":"spender","type":"address"},{"internalType":"uint256","name":"value","type":"uint256"},{"internalType":"uint256","name":"deadline","type":"uint256"},{"internalType":"uint8","name":"v","type":"uint8"},{"internalType":"bytes32","name":"r","type":"bytes32"},{"internalType":"bytes32","name":"s","type":"bytes32"}],"name":"permit","outputs":[],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":true,"inputs":[],"name":"price0CumulativeLast","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[],"name":"price1CumulativeLast","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":false,"inputs":[{"internalType":"address","name":"to","type":"address"}],"name":"skim","outputs":[],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":false,"inputs":[{"internalType":"uint256","name":"amount0Out","type":"uint256"},{"internalType":"uint256","name":"amount1Out","type":"uint256"},{"internalType":"address","name":"to","type":"address"},{"internalType":"bytes","name":"data","type":"bytes"}],"name":"swap","outputs":[],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":true,"inputs":[],"name":"symbol","outputs":[{"internalType":"string","name":"","type":"string"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":false,"inputs":[],"name":"sync","outputs":[],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":true,"inputs":[],"name":"token0","outputs":[{"internalType":"address","name":"","type":"address"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[],"name":"token1","outputs":[{"internalType":"address","name":"","type":"address"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[],"name":"totalSupply","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":false,"inputs":[{"internalType":"address","name":"to","type":"address"},{"internalType":"uint256","name":"value","type":"uint256"}],"name":"transfer","outputs":[{"internalType":"bool","name":"","type":"bool"}],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":false,"inputs":[{"internalType":"address","name":"from","type":"address"},{"internalType":"address","name":"to","type":"address"},{"internalType":"uint256","name":"value","type":"uint256"}],"name":"transferFrom","outputs":[{"internalType":"bool","name":"","type":"bool"}],"payable":false,"stateMutability":"nonpayable","type":"function"}];
 
 describe("LPStaking", () => {
@@ -47,44 +49,83 @@ describe("LPStaking", () => {
         xit("Should work in the alternative workflow #1", async() => {
             // Alternative workflow #1 consist in a user sending his LP tokens in the ETH - DAI pool for stake in our contract using a signature and the Uniswap's permit function
             const StakingTokenContract = await hre.ethers.getContractAt(StakingTokenAbi, StakingTokenAddress);
+            
             await hre.network.provider.request({
                 method: "hardhat_impersonateAccount",
-                params: ["0xfD18D8638C1659b602905c29C0bc0E93c6d2426c"],
+                params: ["0x3904F59DF9199e0d6dC3800af9f6794c9D037eb1"],
             });
-            const StakingTokenOwner = await ethers.getSigner("0xfD18D8638C1659b602905c29C0bc0E93c6d2426c");
+            const StakingTokenOwner = await ethers.getSigner("0x3904F59DF9199e0d6dC3800af9f6794c9D037eb1");
             const StakingTokenOwnerBalance = await StakingTokenContract.balanceOf(StakingTokenOwner.address);
-
-            const privateKey = Buffer.from(
-              '4af1bceebf7f3634ec3cff8a2c38e51178d5d4ce585c52d6043e5e2cc3418bb0',
-              'hex',
-            );         
-                    
-            const signature = sigUtils.signTypedData({
-              privateKey,
-              data: {
-                types: {
-                  EIP712Domain: [
-                    { name: 'name', type: 'string', },
-                    { name: 'version', type: 'string', },
-                    { name: 'chainId', type: 'uint256', },
-                    { name: 'verifyingContract', type: 'address', },
-                  ],
-                },
-              primaryType: 'EIP712Domain',
-              domain: {
-                name: 'Uniswap V2',
-                version: '1',
-                chainId: 4,
-                verifyingContract: StakingTokenAddress,
-              },
-              message: {},
-            },
-              version: sigUtils.SignTypedDataVersion.V4,
-            });         
-          console.log(signature);
-            // How to create the right signature for uniswap permit?           
             
+           /*
+           const provider = new MockProvider({
+            hardfork: 'istanbul',
+            mnemonic: 'horn horn horn horn horn horn horn horn horn horn horn horn',
+            gasLimit: 9999999
+           });
 
+           const [wallet, other] = provider.getWallets();
+           */
+           
+           const privateKey = Buffer.from(
+              'aa770c456b00f6d385be32742457aa73b8c9119eea3c5270826892a2baa749e1',
+              'hex',
+            );               
+                          
+            const DOMAIN_SEPARATOR = keccak256(
+              defaultAbiCoder.encode(
+                ['bytes32', 'bytes32', 'bytes32', 'uint256', 'address'],
+                [
+                  keccak256(
+                    toUtf8Bytes('EIP712Domain(string name,string version,uint256 chainId,address verifyingContract)')
+                  ),
+                  keccak256(toUtf8Bytes('Uniswap V2')),
+                  keccak256(toUtf8Bytes('1')),
+                  4, // chain ID
+                  StakingTokenAddress
+                ]
+              )
+            );
+
+            const PERMIT_TYPEHASH = keccak256(
+              toUtf8Bytes('Permit(address owner,address spender,uint256 value,uint256 nonce,uint256 deadline)')
+            );
+
+            const deadline = Date.now();
+
+            // message to sign
+            const digest = keccak256(
+              solidityPack(
+                ['bytes1', 'bytes1', 'bytes32', 'bytes32'],
+                [
+                  '0x19',
+                  '0x01',
+                  DOMAIN_SEPARATOR,
+                  keccak256(
+                    defaultAbiCoder.encode(
+                      ['bytes32', 'address', 'address', 'uint256', 'uint256', 'uint256'],
+                      //[PERMIT_TYPEHASH, wallet.address , other.address, 1, nonce, deadline]
+                      [PERMIT_TYPEHASH, StakingTokenOwner.address , LPStaking.address, 1, 0, deadline]
+                    )
+                  )
+                ]
+              )
+            );
+            
+            const { v, r, s } = ecsign(Buffer.from(digest.slice(2), 'hex'), privateKey, 4);
+            //console.log("r", r);   
+            //console.log("s", s);    
+            //console.log("v", v);            
+
+          //console.log("signature",  signature);       
+          //console.log("DOMAIN_SEPARATOR", DOMAIN_SEPARATOR);
+          //console.log("PERMIT_TYPEHASH", PERMIT_TYPEHASH);
+          //console.log("digest", digest);
+            // How to create the right signature for uniswap permit?
+
+          //await LPStaking.connect(StakingTokenOwner).stakeLPWithPermit(1, signature);
+          //await LPStaking.connect(StakingTokenOwner).stakeLPWithPermit(1, r, s, v);
+                  
         });
         
         it("Should work in the alternative workflow #2", async() => {
