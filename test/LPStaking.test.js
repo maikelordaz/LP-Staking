@@ -1,7 +1,9 @@
 const web3 = require('web3');
 const { expect } = require("chai");
-const { parseEther, formatEther, keccak256, AbiCoder } = require("ethers/lib/utils");
+const { parseEther, formatEther, keccak256, AbiCoder, _TypedDataEncoder } = require("ethers/lib/utils");
 const { ethers, waffle, deployments, getNamedAccounts } = require("hardhat");
+const sigUtils = require("@metamask/eth-sig-util");
+const ethUtil = require("ethereumjs-util");
 
 const provider = ethers.provider;
 
@@ -40,8 +42,8 @@ describe("LPStaking", () => {
 
             expect(totalSupply).to.be.greaterThan(0);
             expect(AliceBalance).to.be.equal(totalSupply);
-        });
-
+        });               
+        
         xit("Should work in the alternative workflow #1", async() => {
             // Alternative workflow #1 consist in a user sending his LP tokens in the ETH - DAI pool for stake in our contract using a signature and the Uniswap's permit function
             const StakingTokenContract = await hre.ethers.getContractAt(StakingTokenAbi, StakingTokenAddress);
@@ -52,7 +54,37 @@ describe("LPStaking", () => {
             const StakingTokenOwner = await ethers.getSigner("0xfD18D8638C1659b602905c29C0bc0E93c6d2426c");
             const StakingTokenOwnerBalance = await StakingTokenContract.balanceOf(StakingTokenOwner.address);
 
-            // How to create the right signature for uniswap permit?
+            const privateKey = Buffer.from(
+              '4af1bceebf7f3634ec3cff8a2c38e51178d5d4ce585c52d6043e5e2cc3418bb0',
+              'hex',
+            );         
+                    
+            const signature = sigUtils.signTypedData({
+              privateKey,
+              data: {
+                types: {
+                  EIP712Domain: [
+                    { name: 'name', type: 'string', },
+                    { name: 'version', type: 'string', },
+                    { name: 'chainId', type: 'uint256', },
+                    { name: 'verifyingContract', type: 'address', },
+                  ],
+                },
+              primaryType: 'EIP712Domain',
+              domain: {
+                name: 'Uniswap V2',
+                version: '1',
+                chainId: 4,
+                verifyingContract: StakingTokenAddress,
+              },
+              message: {},
+            },
+              version: sigUtils.SignTypedDataVersion.V4,
+            });         
+          console.log(signature);
+            // How to create the right signature for uniswap permit?           
+            
+
         });
         
         it("Should work in the alternative workflow #2", async() => {
@@ -88,6 +120,7 @@ describe("LPStaking", () => {
             let AliceStakingContractBalance = parseFloat(formatEther(await StakingTokenContract.balanceOf(Alice.address)));
 
             expect(AliceStakingContractBalance).to.be.greaterThan(0);
-        });
+        });     
+        
     });
 });
