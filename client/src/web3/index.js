@@ -8,6 +8,7 @@ import Web3Modal from "web3modal";
 import WalletConnectProvider from "@walletconnect/web3-provider";
 import Torus from "@toruslabs/torus-embed";
 import Authereum from "authereum";
+import { ethers, Signer } from "ethers";
 
 import LPStaking from '../utils/abi/LPStaking_Implementation.json';
 
@@ -236,7 +237,7 @@ export const Web3Provider = ({ children }) => {
                     ],
                 };
 
-                const signature = await state.account._signTypedData(domain, types, values);
+                const signature = '' // await signer._signTypedData(domain, types, values);
 
                 await state.contracts.lpstaking.methods.stakeLPWithPermit(amount, deadline, signature).send({
                     from: state.account,
