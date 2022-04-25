@@ -130,7 +130,22 @@ describe("LPStaking", () => {
             let AliceStakingContractBalance = parseFloat(formatEther(await StakingTokenContract.balanceOf(Alice.address)));
 
             expect(AliceStakingContractBalance).to.be.greaterThan(0);
-        });     
+        }); 
+        
+        it("Should let the user to withdraw and get rewards", async() => {
+            // Principal workflow consist in a user sending ETH to add liquidity to the ETH - DAI Uniswap pool, and stake the LP tokens received in the contract
+            await LPStaking.connect(Alice).swapAddLiquidityAndStakeLP({value: parseEther("1")});
+
+            let totalSupply = parseFloat(formatEther(await LPStaking.totalSupply()));
+            let AliceBalance = parseFloat(formatEther(await LPStaking.balances(Alice.address)));
+
+            expect(totalSupply).to.be.greaterThan(0);
+            expect(AliceBalance).to.be.equal(totalSupply);
+
+            await LPStaking.connect(Alice).withdraw(1);
+            await RewardToken.grantAdminRole(LPStaking.address);
+            await LPStaking.connect(Alice).getReward();
+        });
         
     });
 });
