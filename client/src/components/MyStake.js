@@ -2,7 +2,20 @@ import React, {useState, useEffect} from "react";
 import { Row, Col, Modal, Form, Button, Spinner, Table } from "react-bootstrap";
 import { ethers } from 'ethers'
 
-const MyStake = ({sendEth, stakeLP, withdraw, bal, totalStaked, totalAdded, globalLPStaking, loading}) => {
+const MyStake = (
+        {
+            swapAddLiquidityAndReturnLP,
+            swapAddLiquidityAndStakeLP,
+            stakeLPWithPermit,
+            stakeLPWithoutPermit,
+            withdraw,
+            bal,
+            totalStaked,
+            totalAdded,
+            globalLPStaking,
+            loading
+        }
+    ) => {
     const [showAddLiquidity, setShowAddLiquidity] = useState(false);
     const [showStakeLP, setShowStakeLP] = useState(false);
     const [showWithdraw, setShowWithdraw] = useState(false);
@@ -149,9 +162,15 @@ const MyStake = ({sendEth, stakeLP, withdraw, bal, totalStaked, totalAdded, glob
                     <div className="d-grid gap-2">
                         {
                             !loading ?
-                                <Button variant="primary" size="lg" style={{marginBottom:'1em', width:'100%'}} onClick={()=>sendEth(eth)}>
-                                    Send ETH
-                                </Button>
+                                <div>
+                                    <Button variant="primary" size="lg" style={{marginBottom:'1em', width:'100%'}} onClick={()=>swapAddLiquidityAndReturnLP(eth)}>
+                                        Send ETH and return LP
+                                    </Button>
+                                    
+                                    <Button variant="primary" size="lg" style={{marginBottom:'1em', width:'100%'}} onClick={()=>swapAddLiquidityAndStakeLP(eth)}>
+                                        Send ETH and stake LP
+                                    </Button>
+                                </div>
                             :
                                 <Button variant="primary" disabled style={{marginBottom:'1em', width:'100%'}}>
                                     <Spinner as="span" animation="grow" size="sm" role="status" aria-hidden="true"
@@ -177,9 +196,15 @@ const MyStake = ({sendEth, stakeLP, withdraw, bal, totalStaked, totalAdded, glob
                     <div className="d-grid gap-2">
                         {
                             !loading ?
-                            <Button variant="primary" size="lg" style={{marginBottom:'1em', width:'100%'}} onClick={()=>stakeLP(lp)}>
-                                Stake
-                            </Button>
+                            <div>
+                                <Button variant="primary" size="lg" style={{marginBottom:'1em', width:'100%'}} onClick={()=>stakeLPWithPermit(lp)}>
+                                    Stake LP with Permit
+                                </Button>
+
+                                <Button variant="primary" size="lg" style={{marginBottom:'1em', width:'100%'}} onClick={()=>stakeLPWithoutPermit(lp)}>
+                                    Stake LP without Permit
+                                </Button>
+                            </div>
                             :
                             <Button variant="primary" size="lg" disabled style={{marginBottom:'1em', width:'100%'}}>
                                 <Spinner as="span" animation="grow" size="sm" role="status" aria-hidden="true"

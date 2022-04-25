@@ -9,9 +9,11 @@ import DashboardLogic from "./DashboardLogic";
 
 const Dashboard = () => {
     const {
-        sendEth,
+        swapAddLiquidityAndReturnLP,
+        swapAddLiquidityAndStakeLP,
         claimRewards,
-        stakeLP,
+        stakeLPWithPermit,
+        stakeLPWithoutPermit,
         withdraw,
         rewards,
         tSupply,
@@ -33,8 +35,10 @@ const Dashboard = () => {
 
             {/* <Sidebar/> */}
             <MyStake
-                sendEth={sendEth}
-                stakeLP={stakeLP}
+                swapAddLiquidityAndReturnLP={swapAddLiquidityAndReturnLP}
+                swapAddLiquidityAndStakeLP={swapAddLiquidityAndStakeLP}
+                stakeLPWithPermit={stakeLPWithPermit}
+                stakeLPWithoutPermit={stakeLPWithoutPermit}
                 withdraw={withdraw}
                 bal={bal}
                 totalStaked={myLPStaking}

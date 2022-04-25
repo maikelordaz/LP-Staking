@@ -11,7 +11,7 @@ import Authereum from "authereum";
 
 import LPStaking from '../utils/abi/LPStaking_Implementation.json';
 
-import {CONTRACT_ADDRESS, CURRENT_NETWORK, DEPLOY_BLOCK} from './constants';
+import {CONTRACT_ADDRESS, STAKING_TOKEN_ADDRESS, CURRENT_NETWORK, DEPLOY_BLOCK} from './constants';
 
 let web3 = null;
 
@@ -167,7 +167,20 @@ export const Web3Provider = ({ children }) => {
     //   console.log(`data`, data)
     // );
     //FUNCTION
-    const addLiquidityAndReturnLP = async (ammount) => {
+    const swapAddLiquidityAndReturnLPContract = async (ammount) => {
+        if(state.account){
+            try {
+                await state.contracts.lpstaking.methods.swapAddLiquidityAndReturnLP().send({
+                    from: state.account,
+                    value: web3.utils.toWei(ammount)
+                });
+            } catch (error) {
+                console.log(`error`, error)
+            }
+        }
+    }
+    
+    const swapAddLiquidityAndStakeLPContract = async (ammount) => {
         if(state.account){
             try {
                 await state.contracts.lpstaking.methods.swapAddLiquidityAndStakeLP().send({
@@ -193,7 +206,49 @@ export const Web3Provider = ({ children }) => {
         }
     }
     
-    const stakeLPContract = async (amount) => {
+    const stakeLPWithPermitContract = async (amount) => {
+        if(state.account){
+            try {
+                const domain = {
+                    name: "Uniswap V2",
+                    version: "1",
+                    chainId: 4,
+                    verifyingContract: STAKING_TOKEN_ADDRESS,
+                };
+    
+                const deadline = Math.floor(Date.now()/1000);
+    
+                const values = {
+                    owner: state,
+                    spender: LPStaking.address,
+                    value: amount,
+                    nonce: 0,
+                    deadline,
+                };
+    
+                const types = {
+                    Permit: [
+                        { name: "owner", type: "address" },
+                        { name: "spender", type: "address" },
+                        { name: "value", type: "uint256" },
+                        { name: "nonce", type: "uint256" },
+                        { name: "deadline", type: "uint256" },
+                    ],
+                };
+
+                const signature = await state.account._signTypedData(domain, types, values);
+
+                await state.contracts.lpstaking.methods.stakeLPWithPermit(amount, deadline, signature).send({
+                    from: state.account,
+                    value: 0
+                });
+            } catch (error) {
+                console.log(`error`, error)
+            }
+        }
+    }
+    
+    const stakeLPWithoutPermitContract = async (amount) => {
         if(state.account){
             try {
                 await state.contracts.lpstaking.methods.stakeLPWithoutPermit(amount).send({
@@ -374,9 +429,11 @@ export const Web3Provider = ({ children }) => {
                 web3,
                 connectWeb3,
                 logout,
-                addLiquidityAndReturnLP,
+                swapAddLiquidityAndReturnLPContract,
+                swapAddLiquidityAndStakeLPContract,
                 claimRewardsContract,
-                stakeLPContract,
+                stakeLPWithPermitContract,
+                stakeLPWithoutPermitContract,
                 withdrawContract,
                 getRewards,
                 totalSupply,

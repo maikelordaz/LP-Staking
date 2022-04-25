@@ -6,9 +6,11 @@ const DashboardLogic = () => {
     const {
         web3,
         account,
-        addLiquidityAndReturnLP,
+        swapAddLiquidityAndReturnLPContract,
+        swapAddLiquidityAndStakeLPContract,
         claimRewardsContract,
-        stakeLPContract,
+        stakeLPWithPermitContract,
+        stakeLPWithoutPermitContract,
         withdrawContract,
         getRewards,
         rewardRate,
@@ -38,10 +40,20 @@ const DashboardLogic = () => {
     const [loadingApp, setLoadingApp] = useState(false);
 
 
-    const sendEth = async (ammount) => {
+    const swapAddLiquidityAndReturnLP = async (ammount) => {
         setLoadingApp(true)
         if(web3){
-            let resp = await addLiquidityAndReturnLP(ammount);
+            let resp = await swapAddLiquidityAndReturnLPContract(ammount);
+            reGet()
+            setLoadingApp(false)
+            console.log('resp', resp)
+        }
+    }
+    
+    const swapAddLiquidityAndStakeLP = async (ammount) => {
+        setLoadingApp(true)
+        if(web3){
+            let resp = await swapAddLiquidityAndStakeLPContract(ammount);
             reGet()
             setLoadingApp(false)
             console.log('resp', resp)
@@ -57,11 +69,21 @@ const DashboardLogic = () => {
         }
     }
     
-    const stakeLP = async (lp) => {
+    const stakeLPWithPermit = async (lp) => {
         setLoadingApp(true)
         let send = ethers.utils.parseUnits(lp)
         if(web3){
-            await stakeLPContract(send._hex);
+            await stakeLPWithPermitContract(send._hex);
+            reGet()
+            setLoadingApp(false)
+        }
+    }
+    
+    const stakeLPWithoutPermit = async (lp) => {
+        setLoadingApp(true)
+        let send = ethers.utils.parseUnits(lp)
+        if(web3){
+            await stakeLPWithoutPermitContract(send._hex);
             reGet()
             setLoadingApp(false)
         }
@@ -155,9 +177,11 @@ const DashboardLogic = () => {
     }, [web3, loading, account])
 
     return {
-        sendEth,
+        swapAddLiquidityAndReturnLP,
+        swapAddLiquidityAndStakeLP,
         claimRewards,
-        stakeLP,
+        stakeLPWithPermit,
+        stakeLPWithoutPermit,
         withdraw,
         getBalances,
         rewards,
