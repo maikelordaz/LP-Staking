@@ -59,10 +59,10 @@ contract LPStaking is OptimalSwap, StakingRewards, AccessControlUpgradeable  {
      *  @dev This function require a signature by the user in the off-chain
      *  @param _amount is a uint which is the amount of LP Tokens to be staked
      */
-    function stakeLPWithPermit(uint _amount, bytes memory sig) public {
+    function stakeLPWithPermit(uint _amount, uint deadline, bytes memory sig) public {
         (bytes32 r, bytes32 s, uint8 v) = _split(sig);
 
-        stakeWithPermit(_amount, r, s, v);
+        stakeWithPermit(_amount, deadline, r, s, v);
     }
 
     /**

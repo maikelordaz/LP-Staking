@@ -44,88 +44,57 @@ describe("LPStaking", () => {
 
             expect(totalSupply).to.be.greaterThan(0);
             expect(AliceBalance).to.be.equal(totalSupply);
-        });               
-        
-        xit("Should work in the alternative workflow #1", async() => {
-            // Alternative workflow #1 consist in a user sending his LP tokens in the ETH - DAI pool for stake in our contract using a signature and the Uniswap's permit function
+        });
+
+        it("Should work in the alternative workflow #1", async() => {
             const StakingTokenContract = await hre.ethers.getContractAt(StakingTokenAbi, StakingTokenAddress);
-            
+
             await hre.network.provider.request({
                 method: "hardhat_impersonateAccount",
-                params: ["0x3904F59DF9199e0d6dC3800af9f6794c9D037eb1"],
+                params: ["0x79317fc0fb17bc0ce213a2b50f343e4d4c277704"],
             });
-            const StakingTokenOwner = await ethers.getSigner("0x3904F59DF9199e0d6dC3800af9f6794c9D037eb1");
-            const StakingTokenOwnerBalance = await StakingTokenContract.balanceOf(StakingTokenOwner.address);
             
-           /*
-           const provider = new MockProvider({
-            hardfork: 'istanbul',
-            mnemonic: 'horn horn horn horn horn horn horn horn horn horn horn horn',
-            gasLimit: 9999999
-           });
+            const StakingTokenOwner = await ethers.provider.getSigner("0x79317fc0fb17bc0ce213a2b50f343e4d4c277704");
+            await StakingTokenContract.connect(StakingTokenOwner).transfer(Alice.address, parseEther("1"), {gasLimit:200000});
 
-           const [wallet, other] = provider.getWallets();
-           */
-           
-           const privateKey = Buffer.from(
-              'aa770c456b00f6d385be32742457aa73b8c9119eea3c5270826892a2baa749e1',
-              'hex',
-            );               
-                          
-            const DOMAIN_SEPARATOR = keccak256(
-              defaultAbiCoder.encode(
-                ['bytes32', 'bytes32', 'bytes32', 'uint256', 'address'],
-                [
-                  keccak256(
-                    toUtf8Bytes('EIP712Domain(string name,string version,uint256 chainId,address verifyingContract)')
-                  ),
-                  keccak256(toUtf8Bytes('Uniswap V2')),
-                  keccak256(toUtf8Bytes('1')),
-                  4, // chain ID
-                  StakingTokenAddress
-                ]
-              )
-            );
+            const aliceBal = await StakingTokenContract.balanceOf(Alice.address);
 
-            const PERMIT_TYPEHASH = keccak256(
-              toUtf8Bytes('Permit(address owner,address spender,uint256 value,uint256 nonce,uint256 deadline)')
-            );
-
-            const deadline = Date.now();
-
-            // message to sign
-            const digest = keccak256(
-              solidityPack(
-                ['bytes1', 'bytes1', 'bytes32', 'bytes32'],
-                [
-                  '0x19',
-                  '0x01',
-                  DOMAIN_SEPARATOR,
-                  keccak256(
-                    defaultAbiCoder.encode(
-                      ['bytes32', 'address', 'address', 'uint256', 'uint256', 'uint256'],
-                      //[PERMIT_TYPEHASH, wallet.address , other.address, 1, nonce, deadline]
-                      [PERMIT_TYPEHASH, StakingTokenOwner.address , LPStaking.address, 1, 0, deadline]
-                    )
-                  )
-                ]
-              )
-            );
+            const chainId = await getChainId();
             
-            const { v, r, s } = ecsign(Buffer.from(digest.slice(2), 'hex'), privateKey, 4);
-            //console.log("r", r);   
-            //console.log("s", s);    
-            //console.log("v", v);            
+            const domain = {
+              name: "Uniswap V2",
+              version: "1",
+              chainId: 1,
+              verifyingContract: StakingTokenAddress,
+            };
 
-          //console.log("signature",  signature);       
-          //console.log("DOMAIN_SEPARATOR", DOMAIN_SEPARATOR);
-          //console.log("PERMIT_TYPEHASH", PERMIT_TYPEHASH);
-          //console.log("digest", digest);
-            // How to create the right signature for uniswap permit?
+            const deadline = Math.floor(Date.now()/1000);
 
-          //await LPStaking.connect(StakingTokenOwner).stakeLPWithPermit(1, signature);
-          //await LPStaking.connect(StakingTokenOwner).stakeLPWithPermit(1, r, s, v);
-                  
+            const values = {
+              owner: Alice.address,
+              spender: LPStaking.address,
+              value: 1,
+              nonce: 0,
+              deadline,
+            };
+
+            const types = {
+              Permit: [
+                { name: "owner", type: "address" },
+                { name: "spender", type: "address" },
+                { name: "value", type: "uint256" },
+                { name: "nonce", type: "uint256" },
+                { name: "deadline", type: "uint256" },
+              ],
+            };
+
+            const signature = await Alice._signTypedData(domain, types, values);
+
+            await LPStaking.connect(Alice).stakeLPWithPermit(1, deadline, signature);
+
+            let AliceLPStakingBalance = parseFloat(formatEther(await LPStaking.balances(Alice.address)));
+            
+            expect(AliceLPStakingBalance).to.be.greaterThan(0);
         });
         
         it("Should work in the alternative workflow #2", async() => {

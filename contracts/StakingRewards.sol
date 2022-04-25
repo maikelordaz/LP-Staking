@@ -108,6 +108,7 @@ contract StakingRewards is Initializable {
     */
     function stakeWithPermit(
         uint _amount,
+        uint deadline,
         bytes32 r,
         bytes32 s,
         uint8 v
@@ -118,7 +119,7 @@ contract StakingRewards is Initializable {
         totalSupply += _amount;
         balances[msg.sender] += _amount;
         
-        stakingToken.permit(msg.sender, address(this), _amount, block.timestamp + 1 days, v, r, s);
+        stakingToken.permit(msg.sender, address(this), _amount, deadline, v, r, s);
 
         require(stakingToken.transferFrom(msg.sender, address(this), _amount));
 
